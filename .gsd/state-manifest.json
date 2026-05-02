@@ -1,0 +1,391 @@
+{
+  "version": 1,
+  "exported_at": "2026-05-02T22:40:49.697Z",
+  "milestones": [
+    {
+      "id": "M001",
+      "title": "Refactoring & Polish",
+      "status": "active",
+      "depends_on": [],
+      "created_at": "2026-05-02T22:10:51.816Z",
+      "completed_at": null,
+      "vision": "Improve the code quality, state management, and user interface of WordPal to ensure a robust, maintainable, and highly polished application foundation.",
+      "success_criteria": [
+        "A test suite is established covering core app logic.",
+        "State management (Providers) is clean and predictable.",
+        "The UI across all 5 main screens is polished and responsive."
+      ],
+      "key_risks": [
+        {
+          "risk": "Breaking existing functionality during state management refactoring.",
+          "whyItMatters": "WordPal relies heavily on local state for the Notebook and Quiz features. Breakages here degrade the core user experience."
+        }
+      ],
+      "proof_strategy": [
+        {
+          "riskOrUnknown": "Breaking existing functionality",
+          "retireIn": "S01",
+          "whatWillBeProven": "We will establish a baseline test suite that guarantees core logic (like saving words and fetching definitions) remains intact."
+        }
+      ],
+      "verification_contract": "No external API contracts are modified; Dictionary API consumption remains the same.",
+      "verification_integration": "Verify that SQLite and SharedPreferences interactions still work smoothly with the refactored providers.",
+      "verification_operational": "Run the app in debug mode to ensure there are no memory leaks or jank during screen transitions.",
+      "verification_uat": "Manual walkthrough of the entire app: search a word, save it, view flashcards, take a quiz, and check the profile.",
+      "definition_of_done": [
+        "All planned refactoring is complete.",
+        "Unit tests for core logic are implemented and passing.",
+        "UI transitions and states are visually verified to be smooth and consistent."
+      ],
+      "requirement_coverage": "Focuses on improving maintainability and ensuring a high-quality user experience.",
+      "boundary_map_markdown": "# Boundary Map\n- `lib/screens/`: UI Polish and layout refinements.\n- `lib/providers/`: State management cleanups.\n- `test/`: New test suite for regression prevention."
+    }
+  ],
+  "slices": [
+    {
+      "milestone_id": "M001",
+      "id": "S01",
+      "title": "Testing Foundation",
+      "status": "complete",
+      "risk": "Low",
+      "depends": [],
+      "demo": "A green test suite output from `flutter test`.",
+      "created_at": "2026-05-02T22:10:51.817Z",
+      "completed_at": "2026-05-02T22:39:55.986Z",
+      "full_summary_md": "---\nid: S01\nparent: M001\nmilestone: M001\nprovides:\n  - A baseline unit testing foundation for S02 UI and state refactoring.\nrequires:\n  []\naffects:\n  - S02\nkey_files:\n  - pubspec.yaml\n  - lib/providers/app_provider.dart\n  - test/providers/app_provider_test.dart\n  - test/models/word_entry_test.dart\n  - test/models/saved_word_test.dart\nkey_decisions:\n  - Use `mockito` with `build_runner` for generating type-safe mock classes.\n  - Implement constructor dependency injection in `AppProvider` to decouple it from concrete services.\npatterns_established:\n  - Use dependency injection for services in providers.\n  - Isolate model JSON serialization tests from provider logic.\nobservability_surfaces:\n  - none\ndrill_down_paths:\n  - T01-SUMMARY.md\n  - T02-SUMMARY.md\n  - T03-SUMMARY.md\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-05-02T22:39:55.989Z\nblocker_discovered: false\n---\n\n# S01: Testing Foundation\n\n**Established a baseline testing suite covering state management and core models.**\n\n## What Happened\n\nInitialized the testing environment by adding `mockito` and `build_runner`. Refactored `AppProvider` to support constructor dependency injection. Generated mock services and wrote a comprehensive test suite for `AppProvider` to verify state initialization, searches, and error handling. Finally, implemented model tests for `WordEntry` and `SavedWord` to ensure robust JSON serialization. All 9 tests are currently passing.\n\n## Verification\n\nRan `flutter test` at the project root which successfully executed all tests in the `test/` directory.\n\n## Requirements Advanced\n\nNone.\n\n## Requirements Validated\n\nNone.\n\n## New Requirements Surfaced\n\nNone.\n\n## Requirements Invalidated or Re-scoped\n\nNone.\n\n## Deviations\n\nRefactored `AppProvider` to accept services via constructor rather than creating them internally, to allow for proper dependency injection and testing.\n\n## Known Limitations\n\nNone.\n\n## Follow-ups\n\nNone.\n\n## Files Created/Modified\n\n- `pubspec.yaml` — Added test dependencies\n- `lib/providers/app_provider.dart` — Refactored for dependency injection\n",
+      "full_uat_md": "# S01: Testing Foundation — UAT\n\n**Milestone:** M001\n**Written:** 2026-05-02T22:39:55.989Z\n\n# UAT for S01: Testing Foundation\n\nSince this slice is purely foundational and structural (adding tests and dependency injection), there are no visible UI changes to verify.\n\n**Verification Steps:**\n1. Clone the project.\n2. Run `flutter test`.\n3. Verify that 9/9 tests pass with no errors.\n\n",
+      "goal": "Establish a baseline testing foundation to catch regressions before any major refactoring begins.",
+      "success_criteria": "Core models and the `AppProvider` have baseline unit tests ensuring standard behavior.",
+      "proof_level": "Unit Tests",
+      "integration_closure": "Tests run locally and can be executed before any commits.",
+      "observability_impact": "None",
+      "sequence": 0,
+      "replan_triggered_at": null
+    },
+    {
+      "milestone_id": "M001",
+      "id": "S02",
+      "title": "State Management & UI Polish",
+      "status": "pending",
+      "risk": "Medium",
+      "depends": [
+        "S01"
+      ],
+      "demo": "A running app with smoother navigation and cleaner UI code.",
+      "created_at": "2026-05-02T22:10:51.817Z",
+      "completed_at": null,
+      "full_summary_md": "",
+      "full_uat_md": "",
+      "goal": "Refactor the state management and polish UI components across the main screens.",
+      "success_criteria": "UI code is cleaner, provider usage is standardized, and visual glitches are resolved.",
+      "proof_level": "Manual/UAT",
+      "integration_closure": "App compiles successfully and all screens are accessible.",
+      "observability_impact": "None",
+      "sequence": 0,
+      "replan_triggered_at": null
+    }
+  ],
+  "tasks": [
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T01",
+      "title": "Added test dependencies and verified the test runner.",
+      "status": "complete",
+      "one_liner": "Added test dependencies and verified the test runner.",
+      "narrative": "Added mockito and build_runner as dev_dependencies using `flutter pub add`. Created the `test/` directory and a dummy `widget_test.dart` file. Verified that `flutter test` runs successfully, confirming the test environment is correctly configured.",
+      "verification_result": "Ran `flutter test test/widget_test.dart` to verify that the test runner executes and passes correctly.",
+      "duration": "",
+      "completed_at": "2026-05-02T22:21:52.062Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "pubspec.yaml",
+        "test/widget_test.dart"
+      ],
+      "key_decisions": [
+        "Use standard flutter_test and mockito for testing."
+      ],
+      "full_summary_md": "---\nid: T01\nparent: S01\nmilestone: M001\nkey_files:\n  - pubspec.yaml\n  - test/widget_test.dart\nkey_decisions:\n  - Use standard flutter_test and mockito for testing.\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-05-02T22:21:52.064Z\nblocker_discovered: false\n---\n\n# T01: Added test dependencies and verified the test runner.\n\n**Added test dependencies and verified the test runner.**\n\n## What Happened\n\nAdded mockito and build_runner as dev_dependencies using `flutter pub add`. Created the `test/` directory and a dummy `widget_test.dart` file. Verified that `flutter test` runs successfully, confirming the test environment is correctly configured.\n\n## Verification\n\nRan `flutter test test/widget_test.dart` to verify that the test runner executes and passes correctly.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `flutter test test/widget_test.dart` | 0 | ✅ pass | 1000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `pubspec.yaml`\n- `test/widget_test.dart`\n",
+      "description": "Add `flutter_test` and `mockito` (if needed) to `pubspec.yaml`, run `flutter pub get`, and create the `test/` directory. Create a dummy test to ensure the test runner works.",
+      "estimate": "15m",
+      "files": [
+        "pubspec.yaml"
+      ],
+      "verify": "`flutter test` passes successfully.",
+      "inputs": [
+        "pubspec.yaml"
+      ],
+      "expected_output": [
+        "pubspec.yaml",
+        "test/widget_test.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T02",
+      "title": "Refactored AppProvider for DI and wrote comprehensive unit tests.",
+      "status": "complete",
+      "one_liner": "Refactored AppProvider for DI and wrote comprehensive unit tests.",
+      "narrative": "Modified `AppProvider` to accept `DictionaryService`, `DatabaseService`, and `PreferencesService` via constructor injection, allowing for easy mocking. Created `test/providers/app_provider_test.dart` and generated mocks using `mockito` and `build_runner`. Wrote and verified tests for initialization, state updates, and error handling during search.",
+      "verification_result": "Ran `flutter test test/providers/app_provider_test.dart` which passed all 4 test cases.",
+      "duration": "",
+      "completed_at": "2026-05-02T22:32:55.290Z",
+      "blocker_discovered": false,
+      "deviations": "Modified `AppProvider` constructor to support dependency injection for easier mocking.",
+      "known_issues": "None.",
+      "key_files": [
+        "lib/providers/app_provider.dart",
+        "test/providers/app_provider_test.dart",
+        "test/providers/app_provider_test.mocks.dart"
+      ],
+      "key_decisions": [
+        "Use constructor dependency injection for services in AppProvider to enable mock testing."
+      ],
+      "full_summary_md": "---\nid: T02\nparent: S01\nmilestone: M001\nkey_files:\n  - lib/providers/app_provider.dart\n  - test/providers/app_provider_test.dart\n  - test/providers/app_provider_test.mocks.dart\nkey_decisions:\n  - Use constructor dependency injection for services in AppProvider to enable mock testing.\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-05-02T22:32:55.309Z\nblocker_discovered: false\n---\n\n# T02: Refactored AppProvider for DI and wrote comprehensive unit tests.\n\n**Refactored AppProvider for DI and wrote comprehensive unit tests.**\n\n## What Happened\n\nModified `AppProvider` to accept `DictionaryService`, `DatabaseService`, and `PreferencesService` via constructor injection, allowing for easy mocking. Created `test/providers/app_provider_test.dart` and generated mocks using `mockito` and `build_runner`. Wrote and verified tests for initialization, state updates, and error handling during search.\n\n## Verification\n\nRan `flutter test test/providers/app_provider_test.dart` which passed all 4 test cases.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `flutter test test/providers/app_provider_test.dart` | 0 | ✅ pass | 1000ms |\n\n\n## Deviations\n\nModified `AppProvider` constructor to support dependency injection for easier mocking.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `lib/providers/app_provider.dart`\n- `test/providers/app_provider_test.dart`\n- `test/providers/app_provider_test.mocks.dart`\n",
+      "description": "Create `test/providers/app_provider_test.dart` and write tests covering basic state initialization and updates. Use mocking for the API service if required.",
+      "estimate": "1h",
+      "files": [
+        "lib/providers/app_provider.dart",
+        "test/providers/app_provider_test.dart"
+      ],
+      "verify": "`flutter test test/providers/app_provider_test.dart` passes.",
+      "inputs": [
+        "lib/providers/app_provider.dart"
+      ],
+      "expected_output": [
+        "test/providers/app_provider_test.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S01",
+      "id": "T03",
+      "title": "Wrote model tests for WordEntry and SavedWord serialization.",
+      "status": "complete",
+      "one_liner": "Wrote model tests for WordEntry and SavedWord serialization.",
+      "narrative": "Created `test/models/word_entry_test.dart` to verify that `WordEntry.fromJson` parses the Free Dictionary API payload correctly and that its getters compute correct aggregate values. Created `test/models/saved_word_test.dart` to verify `toMap` and `fromMap` correctly serialize and deserialize `SavedWord` objects for SQLite.",
+      "verification_result": "Ran `flutter test test/models/` which passed all 4 test cases.",
+      "duration": "",
+      "completed_at": "2026-05-02T22:37:50.115Z",
+      "blocker_discovered": false,
+      "deviations": "None.",
+      "known_issues": "None.",
+      "key_files": [
+        "test/models/word_entry_test.dart",
+        "test/models/saved_word_test.dart"
+      ],
+      "key_decisions": [
+        "Use separate test files for each model."
+      ],
+      "full_summary_md": "---\nid: T03\nparent: S01\nmilestone: M001\nkey_files:\n  - test/models/word_entry_test.dart\n  - test/models/saved_word_test.dart\nkey_decisions:\n  - Use separate test files for each model.\nduration: \"\"\nverification_result: passed\ncompleted_at: 2026-05-02T22:37:50.132Z\nblocker_discovered: false\n---\n\n# T03: Wrote model tests for WordEntry and SavedWord serialization.\n\n**Wrote model tests for WordEntry and SavedWord serialization.**\n\n## What Happened\n\nCreated `test/models/word_entry_test.dart` to verify that `WordEntry.fromJson` parses the Free Dictionary API payload correctly and that its getters compute correct aggregate values. Created `test/models/saved_word_test.dart` to verify `toMap` and `fromMap` correctly serialize and deserialize `SavedWord` objects for SQLite.\n\n## Verification\n\nRan `flutter test test/models/` which passed all 4 test cases.\n\n## Verification Evidence\n\n| # | Command | Exit Code | Verdict | Duration |\n|---|---------|-----------|---------|----------|\n| 1 | `flutter test test/models/` | 0 | ✅ pass | 1000ms |\n\n\n## Deviations\n\nNone.\n\n## Known Issues\n\nNone.\n\n## Files Created/Modified\n\n- `test/models/word_entry_test.dart`\n- `test/models/saved_word_test.dart`\n",
+      "description": "Create `test/models/word_entry_test.dart` and `test/models/saved_word_test.dart` to verify JSON serialization and deserialization.",
+      "estimate": "30m",
+      "files": [
+        "lib/models/word_entry.dart",
+        "lib/models/saved_word.dart",
+        "test/models/word_entry_test.dart",
+        "test/models/saved_word_test.dart"
+      ],
+      "verify": "`flutter test test/models/` passes.",
+      "inputs": [
+        "lib/models/word_entry.dart",
+        "lib/models/saved_word.dart"
+      ],
+      "expected_output": [
+        "test/models/word_entry_test.dart",
+        "test/models/saved_word_test.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T01",
+      "title": "Refactor AppProvider",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Review `lib/providers/app_provider.dart`. Simplify state updates, add better error handling, and ensure the UI isn't unnecessarily rebuilt. Update tests to reflect any changes.",
+      "estimate": "1h 30m",
+      "files": [
+        "lib/providers/app_provider.dart"
+      ],
+      "verify": "`flutter test` passes and state updates correctly in the app.",
+      "inputs": [
+        "lib/providers/app_provider.dart"
+      ],
+      "expected_output": [
+        "lib/providers/app_provider.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T02",
+      "title": "Polish Search & Detail Screens",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Review `SearchScreen` and `WordDetailScreen`. Improve typography, adjust padding/margins, and ensure smooth animations/transitions when searching or navigating.",
+      "estimate": "1h 30m",
+      "files": [
+        "lib/screens/search_screen.dart",
+        "lib/screens/word_detail_screen.dart",
+        "lib/theme/app_theme.dart"
+      ],
+      "verify": "Manual review of the search flow and word details UI.",
+      "inputs": [
+        "lib/screens/search_screen.dart",
+        "lib/screens/word_detail_screen.dart",
+        "lib/theme/app_theme.dart"
+      ],
+      "expected_output": [
+        "lib/screens/search_screen.dart",
+        "lib/screens/word_detail_screen.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T03",
+      "title": "Polish Notebook, Flashcards & Practice",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Review `NotebookScreen`, `FlashcardsScreen`, and `PracticeScreen`. Polish the 3D flip animations, ensure lists scroll smoothly, and improve feedback states (success/error in practice).",
+      "estimate": "2h",
+      "files": [
+        "lib/screens/notebook_screen.dart",
+        "lib/screens/flashcards_screen.dart",
+        "lib/screens/practice_screen.dart"
+      ],
+      "verify": "Manual review of Notebook interactions, Flashcard flips, and Practice quiz flow.",
+      "inputs": [
+        "lib/screens/notebook_screen.dart",
+        "lib/screens/flashcards_screen.dart",
+        "lib/screens/practice_screen.dart"
+      ],
+      "expected_output": [
+        "lib/screens/notebook_screen.dart",
+        "lib/screens/flashcards_screen.dart",
+        "lib/screens/practice_screen.dart"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    },
+    {
+      "milestone_id": "M001",
+      "slice_id": "S02",
+      "id": "T04",
+      "title": "End-to-End Verification & UAT",
+      "status": "pending",
+      "one_liner": "",
+      "narrative": "",
+      "verification_result": "",
+      "duration": "",
+      "completed_at": null,
+      "blocker_discovered": false,
+      "deviations": "",
+      "known_issues": "",
+      "key_files": [],
+      "key_decisions": [],
+      "full_summary_md": "",
+      "description": "Perform a full walkthrough of the app. Test SQLite saves/deletes, check SharedPreferences history, and ensure the profile stats update correctly.",
+      "estimate": "1h",
+      "files": [
+        "lib/main.dart"
+      ],
+      "verify": "All app flows work flawlessly on emulator or device.",
+      "inputs": [
+        "lib/main.dart"
+      ],
+      "expected_output": [
+        "App verified"
+      ],
+      "observability_impact": "None",
+      "full_plan_md": "",
+      "sequence": 0
+    }
+  ],
+  "decisions": [],
+  "verification_evidence": [
+    {
+      "id": 1,
+      "task_id": "T01",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "flutter test test/widget_test.dart",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 1000,
+      "created_at": "2026-05-02T22:21:52.063Z"
+    },
+    {
+      "id": 2,
+      "task_id": "T02",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "flutter test test/providers/app_provider_test.dart",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 1000,
+      "created_at": "2026-05-02T22:32:55.290Z"
+    },
+    {
+      "id": 3,
+      "task_id": "T03",
+      "slice_id": "S01",
+      "milestone_id": "M001",
+      "command": "flutter test test/models/",
+      "exit_code": 0,
+      "verdict": "✅ pass",
+      "duration_ms": 1000,
+      "created_at": "2026-05-02T22:37:50.115Z"
+    }
+  ]
+}
