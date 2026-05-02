@@ -15,7 +15,6 @@ class WordDetailScreen extends StatefulWidget {
 class _WordDetailScreenState extends State<WordDetailScreen> {
   final _player = AudioPlayer();
   bool _isPlaying = false;
-  bool _showTranslation = false;
   int _tabIndex = 0; // 0=definition, 1=examples, 2=related
 
   @override
@@ -223,7 +222,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                         Switch.adaptive(
                           value: provider.examplesOnly,
                           onChanged: (v) => provider.setExamplesOnly(v),
-                          activeColor: AppColors.primary,
+                          activeThumbColor: AppColors.primary,
                         ),
                       ],
                     ),
@@ -331,55 +330,46 @@ class _PosFilterRow extends StatelessWidget {
       runSpacing: 8,
       children: options.map((pos) {
         final isSelected = selected == pos;
-        return GestureDetector(
-          onTap: () => onChanged(pos),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color:
-                  isSelected ? AppColors.primary : AppColors.bgRaised,
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.border,
+        return Material(
+          color: isSelected ? AppColors.primary : AppColors.bgRaised,
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: () => onChanged(pos),
+            child: Container(
+              padding: const EdgeInsets.only(left: 2, right: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : AppColors.border,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? Colors.white : AppColors.inkMuted,
-                      width: 1.5,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Radio<String>(
+                    value: pos,
+                    groupValue: selected,
+                    onChanged: (value) {
+                      if (value != null) onChanged(value);
+                    },
+                    visualDensity: VisualDensity.compact,
+                    activeColor:
+                        isSelected ? Colors.white : AppColors.primary,
+                    fillColor: WidgetStateProperty.resolveWith(
+                      (_) => isSelected ? Colors.white : AppColors.inkMuted,
                     ),
                   ),
-                  child: isSelected
-                      ? Center(
-                          child: Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                          ),
-                        )
-                      : null,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  pos,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: isSelected ? Colors.white : AppColors.inkSoft,
+                  Text(
+                    pos,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? Colors.white : AppColors.inkSoft,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -673,7 +663,7 @@ class _Chip extends StatelessWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: fg.withOpacity(0.3)),
+        border: Border.all(color: fg.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,

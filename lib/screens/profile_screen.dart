@@ -42,18 +42,18 @@ class ProfileScreen extends StatelessWidget {
                           color: Colors.white)),
                 ),
                 const SizedBox(width: 14),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Maria Almeida',
+                      Text('Maria Almeida',
                           style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: AppColors.ink,
                               letterSpacing: -0.4)),
-                      const SizedBox(height: 3),
-                      const Text('Intermediate · Level B2 · Joined March 2026',
+                      SizedBox(height: 3),
+                      Text('Intermediate · Level B2 · Joined March 2026',
                           style: TextStyle(
                               fontSize: 12,
                               color: AppColors.inkSoft)),
@@ -214,7 +214,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                _Achievement(
+                const _Achievement(
                     emoji: '⭐',
                     title: 'Week strong',
                     sub: '7 day streak',
@@ -226,7 +226,7 @@ class ProfileScreen extends StatelessWidget {
                     sub: '50 words saved',
                     unlocked: total >= 50),
                 const SizedBox(width: 8),
-                _Achievement(
+                const _Achievement(
                     emoji: '🎓',
                     title: 'Scholar',
                     sub: 'C2 word learned',
@@ -243,7 +243,7 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
-              child: Column(
+              child: const Column(
                 children: [
                   _SettingsRow('Daily reminder · 8:00 AM',
                       Icons.notifications_outlined, 0, true),

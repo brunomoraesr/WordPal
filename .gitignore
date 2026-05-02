@@ -1,6 +1,8 @@
 # Build outputs
 build/
 .dart_tool/
+.gradle/
+android/.gradle/
 .flutter-plugins
 .flutter-plugins-dependencies
 *.apk

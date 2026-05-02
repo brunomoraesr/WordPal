@@ -46,6 +46,11 @@ class WordPalApp extends StatelessWidget {
               builder: (_) => const MainShell(),
               settings: settings,
             );
+          case '/notebook':
+            return MaterialPageRoute(
+              builder: (_) => const MainShell(initialIndex: 1),
+              settings: settings,
+            );
           case '/word':
             return PageRouteBuilder(
               settings: settings,
@@ -85,14 +90,22 @@ class WordPalApp extends StatelessWidget {
 }
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  final int initialIndex;
+
+  const MainShell({super.key, this.initialIndex = 0});
 
   @override
   State<MainShell> createState() => MainShellState();
 }
 
 class MainShellState extends State<MainShell> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   void setTab(int i) => setState(() => _currentIndex = i);
 

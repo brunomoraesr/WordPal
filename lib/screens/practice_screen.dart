@@ -136,18 +136,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
               padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
               child: Row(
                 children: [
-                  Column(
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('DAILY QUIZ',
+                      Text('DAILY QUIZ',
                           style: TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2,
                               color: AppColors.inkMuted)),
-                      const SizedBox(height: 2),
-                      const Text('Practice',
+                      SizedBox(height: 2),
+                      Text('Practice',
                           style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -347,8 +347,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                               : AppColors.accent)
                                           : Colors.transparent,
                                       border: Border.all(
-                                          color: fg.withOpacity(0.5),
-                                          width: 1.5),
+                                        color: fg.withValues(alpha: 0.5),
+                                        width: 1.5,
+                                      ),
                                     ),
                                     alignment: Alignment.center,
                                     child: showResult && isCorrect
@@ -362,7 +363,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                     fontWeight:
                                                         FontWeight.bold))
                                             : Text(label,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontFamily: 'monospace',
                                                     fontSize: 11,
                                                     fontWeight:

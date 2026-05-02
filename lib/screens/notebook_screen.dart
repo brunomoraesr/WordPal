@@ -14,7 +14,7 @@ class NotebookScreen extends StatefulWidget {
 }
 
 class _NotebookScreenState extends State<NotebookScreen> {
-  bool _showMasteredOnly = false;
+  String _statusFilter = 'learning';
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,11 @@ class _NotebookScreenState extends State<NotebookScreen> {
     final all = provider.savedWords;
     final learning = all.where((w) => !w.mastered).toList();
     final mastered = all.where((w) => w.mastered).toList();
-    final displayed = _showMasteredOnly ? mastered : all;
+    final displayed = switch (_statusFilter) {
+      'all' => all,
+      'mastered' => mastered,
+      _ => learning,
+    };
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -133,19 +137,27 @@ class _NotebookScreenState extends State<NotebookScreen> {
 
                   const SizedBox(height: 14),
 
-                  // Filter toggle
+                  // Status filters
                   Row(
                     children: [
                       _FilterChip(
-                        label: 'All words',
-                        selected: !_showMasteredOnly,
-                        onTap: () => setState(() => _showMasteredOnly = false),
+                        label: 'Learning',
+                        selected: _statusFilter == 'learning',
+                        onTap: () =>
+                            setState(() => _statusFilter = 'learning'),
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
                         label: 'Mastered',
-                        selected: _showMasteredOnly,
-                        onTap: () => setState(() => _showMasteredOnly = true),
+                        selected: _statusFilter == 'mastered',
+                        onTap: () =>
+                            setState(() => _statusFilter = 'mastered'),
+                      ),
+                      const SizedBox(width: 8),
+                      _FilterChip(
+                        label: 'All',
+                        selected: _statusFilter == 'all',
+                        onTap: () => setState(() => _statusFilter = 'all'),
                       ),
                     ],
                   ),
@@ -158,7 +170,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
             // Word list
             Expanded(
               child: displayed.isEmpty
-                  ? _EmptyState(showMasteredOnly: _showMasteredOnly)
+                  ? _EmptyState(statusFilter: _statusFilter)
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                       itemCount: displayed.length,
@@ -270,34 +282,27 @@ class _WordCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: word.mastered
-                  ? AppColors.success.withOpacity(0.4)
+                  ? AppColors.success.withValues(alpha: 0.4)
                   : AppColors.border,
             ),
           ),
           child: Row(
             children: [
               // Mastered checkbox
-              GestureDetector(
-                onTap: onToggleMastery,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: word.mastered
-                        ? AppColors.success
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: word.mastered
-                          ? AppColors.success
-                          : AppColors.inkMuted,
-                      width: 1.5,
-                    ),
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Checkbox(
+                  value: word.mastered,
+                  onChanged: (_) => onToggleMastery(),
+                  activeColor: AppColors.success,
+                  side: const BorderSide(
+                    color: AppColors.inkMuted,
+                    width: 1.5,
                   ),
-                  child: word.mastered
-                      ? const Icon(Icons.check_rounded,
-                          size: 14, color: Colors.white)
-                      : null,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -474,9 +479,9 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  final bool showMasteredOnly;
+  final String statusFilter;
 
-  const _EmptyState({required this.showMasteredOnly});
+  const _EmptyState({required this.statusFilter});
 
   @override
   Widget build(BuildContext context) {
@@ -487,7 +492,7 @@ class _EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              showMasteredOnly
+              statusFilter == 'mastered'
                   ? Icons.emoji_events_outlined
                   : Icons.menu_book_outlined,
               size: 48,
@@ -495,8 +500,10 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              showMasteredOnly
+              statusFilter == 'mastered'
                   ? 'No mastered words yet'
+                  : statusFilter == 'learning'
+                      ? 'No learning words'
                   : 'Your notebook is empty',
               style: const TextStyle(
                 fontFamily: 'Fraunces',
@@ -508,8 +515,10 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              showMasteredOnly
+              statusFilter == 'mastered'
                   ? 'Keep learning! Check words as mastered\nfrom the word detail screen.'
+                  : statusFilter == 'learning'
+                      ? 'Search for words and save them here\nto start your learning list.'
                   : 'Search for words and save them here\nto build your vocabulary.',
               style: const TextStyle(
                 fontSize: 13,

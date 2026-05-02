@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
-import 'word_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -68,7 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         _WordPalMark(),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'WordPal',
                           style: TextStyle(
                             fontFamily: 'Fraunces',
@@ -88,7 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.local_fire_department_rounded,
+                              const Icon(Icons.local_fire_department_rounded,
                                   size: 14, color: AppColors.accent),
                               const SizedBox(width: 4),
                               Text(
@@ -163,6 +162,71 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
 
             if (!isLoading) ...[
+              // Most recent search
+              if (provider.history.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: GestureDetector(
+                      onTap: () {
+                        _controller.text = provider.history.first;
+                        _search(context, provider.history.first);
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.primarySoft,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.primary),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.bgRaised,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.history_rounded,
+                                  size: 20, color: AppColors.primary),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('MOST RECENT SEARCH',
+                                      style: TextStyle(
+                                          fontFamily: 'monospace',
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 1.2,
+                                          color: AppColors.inkMuted)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    provider.history.first,
+                                    style: const TextStyle(
+                                      fontFamily: 'Fraunces',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      fontStyle: FontStyle.italic,
+                                      color: AppColors.ink,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_rounded,
+                                size: 18, color: AppColors.primary),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
               // Saved words preview
               if (provider.savedWords.isNotEmpty)
                 SliverToBoxAdapter(

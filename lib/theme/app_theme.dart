@@ -28,7 +28,7 @@ class AppColors {
 class AppTheme {
   static ThemeData get light => ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.light(
+        colorScheme: const ColorScheme.light(
           primary: AppColors.primary,
           secondary: AppColors.accent,
           surface: AppColors.bg,
@@ -88,24 +88,24 @@ class AppTheme {
             color: AppColors.inkMuted,
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           filled: true,
           fillColor: AppColors.bgRaised,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.border),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.border),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.primary, width: 1.5),
           ),
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          hintStyle: const TextStyle(color: AppColors.inkMuted, fontSize: 15),
+              EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          hintStyle: TextStyle(color: AppColors.inkMuted, fontSize: 15),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -123,12 +123,12 @@ class AppTheme {
             ),
           ),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: const CardThemeData(
           color: AppColors.bgRaised,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-            side: const BorderSide(color: AppColors.border),
+            borderRadius: BorderRadius.all(Radius.circular(14)),
+            side: BorderSide(color: AppColors.border),
           ),
         ),
         chipTheme: ChipThemeData(
