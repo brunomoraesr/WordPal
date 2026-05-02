@@ -1,0 +1,451 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_provider.dart';
+import '../theme/app_theme.dart';
+import 'word_detail_screen.dart';
+
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _search(BuildContext context, String word) async {
+    if (word.trim().isEmpty) return;
+    _focusNode.unfocus();
+    final provider = context.read<AppProvider>();
+    await provider.search(word);
+    if (!context.mounted) return;
+    if (provider.searchState == SearchState.success) {
+      Navigator.pushNamed(context, '/word', arguments: word);
+    } else {
+      _showError(context, provider.searchError);
+    }
+  }
+
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AppProvider>();
+    final isLoading = provider.searchState == SearchState.loading;
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        _WordPalMark(),
+                        const SizedBox(width: 8),
+                        Text(
+                          'WordPal',
+                          style: TextStyle(
+                            fontFamily: 'Fraunces',
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.ink,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.accentSoft,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.local_fire_department_rounded,
+                                  size: 14, color: AppColors.accent),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${provider.history.length} searched',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.accent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Greeting
+                    const Text('Good morning!',
+                        style: TextStyle(
+                            fontSize: 13, color: AppColors.inkSoft)),
+                    const SizedBox(height: 4),
+                    RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontFamily: 'Fraunces',
+                          fontSize: 28,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.ink,
+                          letterSpacing: -0.6,
+                          height: 1.1,
+                        ),
+                        children: [
+                          TextSpan(text: 'What word are you\n'),
+                          TextSpan(
+                            text: 'looking up',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          TextSpan(text: ' today?'),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Search field
+                    _SearchField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      isLoading: isLoading,
+                      onSubmit: (v) => _search(context, v),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Loading indicator
+            if (isLoading)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.all(40),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                        color: AppColors.primary),
+                  ),
+                ),
+              ),
+
+            if (!isLoading) ...[
+              // Saved words preview
+              if (provider.savedWords.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('SAVED WORDS',
+                                style: TextStyle(
+                                    fontFamily: 'monospace',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.2,
+                                    color: AppColors.inkMuted)),
+                            GestureDetector(
+                              onTap: () =>
+                                  Navigator.pushNamed(context, '/notebook'),
+                              child: const Text('See all',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.primary)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (provider.savedWords.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 110,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: provider.savedWords.take(10).length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, i) {
+                        final w = provider.savedWords[i];
+                        return GestureDetector(
+                          onTap: () => _search(context, w.word),
+                          child: Container(
+                            width: 140,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.bgRaised,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        w.word,
+                                        style: const TextStyle(
+                                          fontFamily: 'Fraunces',
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.ink,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (w.audioUrl != null)
+                                      const Icon(Icons.volume_up_rounded,
+                                          size: 14,
+                                          color: AppColors.primary),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  w.partOfSpeech,
+                                  style: const TextStyle(
+                                    fontFamily: 'monospace',
+                                    fontSize: 10,
+                                    color: AppColors.inkMuted,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  w.definition,
+                                  style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.inkSoft,
+                                      height: 1.3),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              // History
+              if (provider.history.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('RECENT',
+                            style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                                color: AppColors.inkMuted)),
+                        GestureDetector(
+                          onTap: () => provider.clearHistory(),
+                          child: const Text('Clear',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              if (provider.history.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: provider.history.map((word) {
+                        return GestureDetector(
+                          onTap: () {
+                            _controller.text = word;
+                            _search(context, word);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.bgRaised,
+                              borderRadius: BorderRadius.circular(999),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.history_rounded,
+                                    size: 12,
+                                    color: AppColors.inkMuted),
+                                const SizedBox(width: 5),
+                                Text(
+                                  word,
+                                  style: const TextStyle(
+                                    fontFamily: 'Fraunces',
+                                    fontSize: 13,
+                                    fontStyle: FontStyle.italic,
+                                    color: AppColors.ink,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool isLoading;
+  final ValueChanged<String> onSubmit;
+
+  const _SearchField({
+    required this.controller,
+    required this.focusNode,
+    required this.isLoading,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            textInputAction: TextInputAction.search,
+            textCapitalization: TextCapitalization.none,
+            onSubmitted: onSubmit,
+            style: const TextStyle(fontSize: 15, color: AppColors.ink),
+            decoration: InputDecoration(
+              hintText: 'Type an English word…',
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 14, right: 8),
+                child: Icon(Icons.search_rounded,
+                    color: AppColors.inkMuted, size: 20),
+              ),
+              prefixIconConstraints:
+                  const BoxConstraints(minWidth: 0, minHeight: 0),
+              suffixIcon: ValueListenableBuilder(
+                valueListenable: controller,
+                builder: (_, value, __) => value.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close_rounded,
+                            size: 18, color: AppColors.inkMuted),
+                        onPressed: () => controller.clear(),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        ElevatedButton(
+          onPressed: isLoading ? null : () => onSubmit(controller.text),
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(52, 52),
+            padding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2))
+              : const Icon(Icons.arrow_forward_rounded, size: 20),
+        ),
+      ],
+    );
+  }
+}
+
+class _WordPalMark extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(7),
+      ),
+      alignment: Alignment.center,
+      child: const Text(
+        'W',
+        style: TextStyle(
+          fontFamily: 'Fraunces',
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          fontStyle: FontStyle.italic,
+          color: Colors.white,
+          letterSpacing: -1,
+        ),
+      ),
+    );
+  }
+}
