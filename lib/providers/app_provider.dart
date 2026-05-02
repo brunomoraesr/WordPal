@@ -8,9 +8,17 @@ import '../services/preferences_service.dart';
 enum SearchState { idle, loading, success, error }
 
 class AppProvider extends ChangeNotifier {
-  final _dictService = DictionaryService();
-  final _dbService = DatabaseService();
-  final _prefsService = PreferencesService();
+  final DictionaryService _dictService;
+  final DatabaseService _dbService;
+  final PreferencesService _prefsService;
+
+  AppProvider({
+    DictionaryService? dictService,
+    DatabaseService? dbService,
+    PreferencesService? prefsService,
+  })  : _dictService = dictService ?? DictionaryService(),
+        _dbService = dbService ?? DatabaseService(),
+        _prefsService = prefsService ?? PreferencesService();
 
   // Search state
   SearchState _searchState = SearchState.idle;
