@@ -76,14 +76,21 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                           color: AppColors.inkMuted)),
                   const Spacer(),
                   IconButton(
-                    icon: Icon(
-                      provider.isCurrentWordSaved
-                          ? Icons.bookmark_rounded
-                          : Icons.bookmark_border_rounded,
-                      size: 22,
-                      color: provider.isCurrentWordSaved
-                          ? AppColors.accent
-                          : AppColors.ink,
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return ScaleTransition(scale: animation, child: child);
+                      },
+                      child: Icon(
+                        provider.isCurrentWordSaved
+                            ? Icons.bookmark_rounded
+                            : Icons.bookmark_border_rounded,
+                        key: ValueKey<bool>(provider.isCurrentWordSaved),
+                        size: 22,
+                        color: provider.isCurrentWordSaved
+                            ? AppColors.accent
+                            : AppColors.ink,
+                      ),
                     ),
                     onPressed: () => provider.toggleSaveCurrentWord(),
                   ),
@@ -119,15 +126,21 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    word.word,
-                    style: const TextStyle(
-                      fontFamily: 'Fraunces',
-                      fontSize: 44,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.ink,
-                      letterSpacing: -1.2,
-                      height: 1,
+                  Hero(
+                    tag: 'word_${word.word}',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: Text(
+                        word.word,
+                        style: const TextStyle(
+                          fontFamily: 'Fraunces',
+                          fontSize: 44,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.ink,
+                          letterSpacing: -1.2,
+                          height: 1,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -283,15 +296,28 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () => provider.toggleSaveCurrentWord(),
-                  icon: Icon(
-                    provider.isCurrentWordSaved
-                        ? Icons.check_rounded
-                        : Icons.bookmark_add_outlined,
-                    size: 18,
+                  icon: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    transitionBuilder: (Widget child, Animation<double> animation) {
+                      return ScaleTransition(scale: animation, child: child);
+                    },
+                    child: Icon(
+                      provider.isCurrentWordSaved
+                          ? Icons.check_rounded
+                          : Icons.bookmark_add_outlined,
+                      key: ValueKey<bool>(provider.isCurrentWordSaved),
+                      size: 18,
+                    ),
                   ),
-                  label: Text(provider.isCurrentWordSaved
-                      ? 'Saved to notebook'
-                      : 'Save to notebook'),
+                  label: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: Text(
+                      provider.isCurrentWordSaved
+                          ? 'Saved to notebook'
+                          : 'Save to notebook',
+                      key: ValueKey<bool>(provider.isCurrentWordSaved),
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: provider.isCurrentWordSaved
                         ? AppColors.successSoft

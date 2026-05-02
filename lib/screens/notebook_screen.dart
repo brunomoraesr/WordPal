@@ -456,7 +456,8 @@ class _FilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : AppColors.bgRaised,
@@ -465,13 +466,14 @@ class _FilterChip extends StatelessWidget {
             color: selected ? AppColors.primary : AppColors.border,
           ),
         ),
-        child: Text(
-          label,
+        child: AnimatedDefaultTextStyle(
+          duration: const Duration(milliseconds: 200),
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: selected ? Colors.white : AppColors.inkSoft,
           ),
+          child: Text(label),
         ),
       ),
     );
