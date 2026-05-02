@@ -82,12 +82,14 @@ class AppProvider extends ChangeNotifier {
   }
 
   void setPosFilter(String filter) {
+    if (_posFilter == filter) return;
     _posFilter = filter;
     _prefsService.setPosFilter(filter);
     notifyListeners();
   }
 
   void setExamplesOnly(bool value) {
+    if (_examplesOnly == value) return;
     _examplesOnly = value;
     _prefsService.setExamplesOnlyMode(value);
     notifyListeners();
