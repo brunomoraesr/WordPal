@@ -1,12 +1,31 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/user_profile.dart';
 
 class PreferencesService {
   static const _keyHistory = 'search_history';
   static const _keyPosFilter = 'pos_filter';
   static const _keyExamplesOnly = 'examples_only_mode';
+  static const _keyUserProfile = 'user_profile';
 
   static const int maxHistory = 20;
+
+  Future<UserProfile> getUserProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_keyUserProfile);
+    if (raw == null) return UserProfile.defaultProfile();
+    try {
+      final map = json.decode(raw) as Map<String, dynamic>;
+      return UserProfile.fromMap(map);
+    } catch (e) {
+      return UserProfile.defaultProfile();
+    }
+  }
+
+  Future<void> saveUserProfile(UserProfile profile) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyUserProfile, json.encode(profile.toMap()));
+  }
 
   Future<List<String>> getHistory() async {
     final prefs = await SharedPreferences.getInstance();
