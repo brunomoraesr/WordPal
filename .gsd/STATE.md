@@ -1,12 +1,14 @@
 # GSD State
 
-**Active Milestone:** M001: Refactoring & Polish
+**Active Milestone:** M003: Audio Reading / Voice Search
 **Active Slice:** None
-**Phase:** complete
+**Phase:** validating-milestone
 **Requirements Status:** 0 active · 0 validated · 0 deferred · 0 out of scope
 
 ## Milestone Registry
 - ✅ **M001:** Refactoring & Polish
+- ⬜ **M002:** M002
+- 🔄 **M003:** Audio Reading / Voice Search
 
 ## Recent Decisions
 - None recorded
@@ -15,4 +17,4 @@
 - None
 
 ## Next Action
-All milestones complete.
+Validate milestone M003 before completion.
