@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/saved_word.dart';
 import '../models/word_entry.dart';
+import '../models/user_profile.dart';
 import '../services/database_service.dart';
 import '../services/dictionary_service.dart';
 import '../services/preferences_service.dart';
@@ -32,6 +33,9 @@ class AppProvider extends ChangeNotifier {
   // Filter / UI preferences
   String _posFilter = 'all';
   bool _examplesOnly = false;
+  
+  // Profile state
+  UserProfile _userProfile = UserProfile.defaultProfile();
 
   SearchState get searchState => _searchState;
   WordEntry? get currentWord => _currentWord;
@@ -40,6 +44,7 @@ class AppProvider extends ChangeNotifier {
   List<SavedWord> get savedWords => List.unmodifiable(_savedWords);
   String get posFilter => _posFilter;
   bool get examplesOnly => _examplesOnly;
+  UserProfile get userProfile => _userProfile;
 
   bool get isCurrentWordSaved {
     if (_currentWord == null) return false;
@@ -51,6 +56,49 @@ class AppProvider extends ChangeNotifier {
     _posFilter = await _prefsService.getPosFilter();
     _examplesOnly = await _prefsService.getExamplesOnlyMode();
     _savedWords = await _dbService.getAllWords();
+    _userProfile = await _prefsService.getUserProfile();
+    notifyListeners();
+  }
+
+  Future<void> updateName(String name) async {
+    if (name.trim().isEmpty || _userProfile.name == name.trim()) return;
+    _userProfile = _userProfile.copyWith(name: name.trim());
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> addPracticeMinutes(int minutes) async {
+    if (minutes <= 0) return;
+    
+    final days = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+    final today = DateTime.now().weekday - 1;
+    final dayKey = days[today];
+
+    final newMap = Map<String, int>.from(_userProfile.weeklyPracticeMinutes);
+    newMap[dayKey] = (newMap[dayKey] ?? 0) + minutes;
+
+    _userProfile = _userProfile.copyWith(weeklyPracticeMinutes: newMap);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> toggleDailyReminder() async {
+    _userProfile = _userProfile.copyWith(dailyReminder: !_userProfile.dailyReminder);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> updatePronunciationAccent(String accent) async {
+    if (_userProfile.pronunciationAccent == accent) return;
+    _userProfile = _userProfile.copyWith(pronunciationAccent: accent);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> updateTranslationLanguage(String language) async {
+    if (_userProfile.translationLanguage == language) return;
+    _userProfile = _userProfile.copyWith(translationLanguage: language);
+    await _prefsService.saveUserProfile(_userProfile);
     notifyListeners();
   }
 

@@ -56,6 +56,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _picked = null;
         if (_qIdx + 1 >= _questions.length) {
           _finished = true;
+          context.read<AppProvider>().addPracticeMinutes(3);
         } else {
           _qIdx++;
         }

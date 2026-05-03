@@ -3,16 +3,17 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i9;
+import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sqflite/sqflite.dart' as _i3;
-import 'package:wordpal/models/saved_word.dart' as _i7;
+import 'package:wordpal/models/saved_word.dart' as _i8;
+import 'package:wordpal/models/user_profile.dart' as _i4;
 import 'package:wordpal/models/word_entry.dart' as _i2;
-import 'package:wordpal/services/database_service.dart' as _i6;
-import 'package:wordpal/services/dictionary_service.dart' as _i4;
-import 'package:wordpal/services/preferences_service.dart' as _i8;
+import 'package:wordpal/services/database_service.dart' as _i7;
+import 'package:wordpal/services/dictionary_service.dart' as _i5;
+import 'package:wordpal/services/preferences_service.dart' as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -49,17 +50,27 @@ class _FakeDatabase_1 extends _i1.SmartFake implements _i3.Database {
         );
 }
 
+class _FakeUserProfile_2 extends _i1.SmartFake implements _i4.UserProfile {
+  _FakeUserProfile_2(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
 /// A class which mocks [DictionaryService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDictionaryService extends _i1.Mock implements _i4.DictionaryService {
+class MockDictionaryService extends _i1.Mock implements _i5.DictionaryService {
   @override
-  _i5.Future<_i2.WordEntry> lookup(String? word) => (super.noSuchMethod(
+  _i6.Future<_i2.WordEntry> lookup(String? word) => (super.noSuchMethod(
         Invocation.method(
           #lookup,
           [word],
         ),
-        returnValue: _i5.Future<_i2.WordEntry>.value(_FakeWordEntry_0(
+        returnValue: _i6.Future<_i2.WordEntry>.value(_FakeWordEntry_0(
           this,
           Invocation.method(
             #lookup,
@@ -67,67 +78,67 @@ class MockDictionaryService extends _i1.Mock implements _i4.DictionaryService {
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i2.WordEntry>.value(_FakeWordEntry_0(
+            _i6.Future<_i2.WordEntry>.value(_FakeWordEntry_0(
           this,
           Invocation.method(
             #lookup,
             [word],
           ),
         )),
-      ) as _i5.Future<_i2.WordEntry>);
+      ) as _i6.Future<_i2.WordEntry>);
 }
 
 /// A class which mocks [DatabaseService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDatabaseService extends _i1.Mock implements _i6.DatabaseService {
+class MockDatabaseService extends _i1.Mock implements _i7.DatabaseService {
   @override
-  _i5.Future<_i3.Database> get database => (super.noSuchMethod(
+  _i6.Future<_i3.Database> get database => (super.noSuchMethod(
         Invocation.getter(#database),
-        returnValue: _i5.Future<_i3.Database>.value(_FakeDatabase_1(
+        returnValue: _i6.Future<_i3.Database>.value(_FakeDatabase_1(
           this,
           Invocation.getter(#database),
         )),
         returnValueForMissingStub:
-            _i5.Future<_i3.Database>.value(_FakeDatabase_1(
+            _i6.Future<_i3.Database>.value(_FakeDatabase_1(
           this,
           Invocation.getter(#database),
         )),
-      ) as _i5.Future<_i3.Database>);
+      ) as _i6.Future<_i3.Database>);
 
   @override
-  _i5.Future<int> insertWord(_i7.SavedWord? word) => (super.noSuchMethod(
+  _i6.Future<int> insertWord(_i8.SavedWord? word) => (super.noSuchMethod(
         Invocation.method(
           #insertWord,
           [word],
         ),
-        returnValue: _i5.Future<int>.value(0),
-        returnValueForMissingStub: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+        returnValue: _i6.Future<int>.value(0),
+        returnValueForMissingStub: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
 
   @override
-  _i5.Future<List<_i7.SavedWord>> getAllWords() => (super.noSuchMethod(
+  _i6.Future<List<_i8.SavedWord>> getAllWords() => (super.noSuchMethod(
         Invocation.method(
           #getAllWords,
           [],
         ),
-        returnValue: _i5.Future<List<_i7.SavedWord>>.value(<_i7.SavedWord>[]),
+        returnValue: _i6.Future<List<_i8.SavedWord>>.value(<_i8.SavedWord>[]),
         returnValueForMissingStub:
-            _i5.Future<List<_i7.SavedWord>>.value(<_i7.SavedWord>[]),
-      ) as _i5.Future<List<_i7.SavedWord>>);
+            _i6.Future<List<_i8.SavedWord>>.value(<_i8.SavedWord>[]),
+      ) as _i6.Future<List<_i8.SavedWord>>);
 
   @override
-  _i5.Future<_i7.SavedWord?> getWord(String? word) => (super.noSuchMethod(
+  _i6.Future<_i8.SavedWord?> getWord(String? word) => (super.noSuchMethod(
         Invocation.method(
           #getWord,
           [word],
         ),
-        returnValue: _i5.Future<_i7.SavedWord?>.value(),
-        returnValueForMissingStub: _i5.Future<_i7.SavedWord?>.value(),
-      ) as _i5.Future<_i7.SavedWord?>);
+        returnValue: _i6.Future<_i8.SavedWord?>.value(),
+        returnValueForMissingStub: _i6.Future<_i8.SavedWord?>.value(),
+      ) as _i6.Future<_i8.SavedWord?>);
 
   @override
-  _i5.Future<int> updateMastery(
+  _i6.Future<int> updateMastery(
     int? id,
     bool? mastered,
   ) =>
@@ -139,73 +150,107 @@ class MockDatabaseService extends _i1.Mock implements _i6.DatabaseService {
             mastered,
           ],
         ),
-        returnValue: _i5.Future<int>.value(0),
-        returnValueForMissingStub: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+        returnValue: _i6.Future<int>.value(0),
+        returnValueForMissingStub: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
 
   @override
-  _i5.Future<int> deleteWord(int? id) => (super.noSuchMethod(
+  _i6.Future<int> deleteWord(int? id) => (super.noSuchMethod(
         Invocation.method(
           #deleteWord,
           [id],
         ),
-        returnValue: _i5.Future<int>.value(0),
-        returnValueForMissingStub: _i5.Future<int>.value(0),
-      ) as _i5.Future<int>);
+        returnValue: _i6.Future<int>.value(0),
+        returnValueForMissingStub: _i6.Future<int>.value(0),
+      ) as _i6.Future<int>);
 
   @override
-  _i5.Future<bool> isSaved(String? word) => (super.noSuchMethod(
+  _i6.Future<bool> isSaved(String? word) => (super.noSuchMethod(
         Invocation.method(
           #isSaved,
           [word],
         ),
-        returnValue: _i5.Future<bool>.value(false),
-        returnValueForMissingStub: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+        returnValue: _i6.Future<bool>.value(false),
+        returnValueForMissingStub: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 }
 
 /// A class which mocks [PreferencesService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPreferencesService extends _i1.Mock
-    implements _i8.PreferencesService {
+    implements _i9.PreferencesService {
   @override
-  _i5.Future<List<String>> getHistory() => (super.noSuchMethod(
+  _i6.Future<_i4.UserProfile> getUserProfile() => (super.noSuchMethod(
+        Invocation.method(
+          #getUserProfile,
+          [],
+        ),
+        returnValue: _i6.Future<_i4.UserProfile>.value(_FakeUserProfile_2(
+          this,
+          Invocation.method(
+            #getUserProfile,
+            [],
+          ),
+        )),
+        returnValueForMissingStub:
+            _i6.Future<_i4.UserProfile>.value(_FakeUserProfile_2(
+          this,
+          Invocation.method(
+            #getUserProfile,
+            [],
+          ),
+        )),
+      ) as _i6.Future<_i4.UserProfile>);
+
+  @override
+  _i6.Future<void> saveUserProfile(_i4.UserProfile? profile) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveUserProfile,
+          [profile],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
+  _i6.Future<List<String>> getHistory() => (super.noSuchMethod(
         Invocation.method(
           #getHistory,
           [],
         ),
-        returnValue: _i5.Future<List<String>>.value(<String>[]),
-        returnValueForMissingStub: _i5.Future<List<String>>.value(<String>[]),
-      ) as _i5.Future<List<String>>);
+        returnValue: _i6.Future<List<String>>.value(<String>[]),
+        returnValueForMissingStub: _i6.Future<List<String>>.value(<String>[]),
+      ) as _i6.Future<List<String>>);
 
   @override
-  _i5.Future<void> addToHistory(String? word) => (super.noSuchMethod(
+  _i6.Future<void> addToHistory(String? word) => (super.noSuchMethod(
         Invocation.method(
           #addToHistory,
           [word],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i5.Future<void> clearHistory() => (super.noSuchMethod(
+  _i6.Future<void> clearHistory() => (super.noSuchMethod(
         Invocation.method(
           #clearHistory,
           [],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i5.Future<String> getPosFilter() => (super.noSuchMethod(
+  _i6.Future<String> getPosFilter() => (super.noSuchMethod(
         Invocation.method(
           #getPosFilter,
           [],
         ),
-        returnValue: _i5.Future<String>.value(_i9.dummyValue<String>(
+        returnValue: _i6.Future<String>.value(_i10.dummyValue<String>(
           this,
           Invocation.method(
             #getPosFilter,
@@ -213,42 +258,42 @@ class MockPreferencesService extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i5.Future<String>.value(_i9.dummyValue<String>(
+            _i6.Future<String>.value(_i10.dummyValue<String>(
           this,
           Invocation.method(
             #getPosFilter,
             [],
           ),
         )),
-      ) as _i5.Future<String>);
+      ) as _i6.Future<String>);
 
   @override
-  _i5.Future<void> setPosFilter(String? filter) => (super.noSuchMethod(
+  _i6.Future<void> setPosFilter(String? filter) => (super.noSuchMethod(
         Invocation.method(
           #setPosFilter,
           [filter],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 
   @override
-  _i5.Future<bool> getExamplesOnlyMode() => (super.noSuchMethod(
+  _i6.Future<bool> getExamplesOnlyMode() => (super.noSuchMethod(
         Invocation.method(
           #getExamplesOnlyMode,
           [],
         ),
-        returnValue: _i5.Future<bool>.value(false),
-        returnValueForMissingStub: _i5.Future<bool>.value(false),
-      ) as _i5.Future<bool>);
+        returnValue: _i6.Future<bool>.value(false),
+        returnValueForMissingStub: _i6.Future<bool>.value(false),
+      ) as _i6.Future<bool>);
 
   @override
-  _i5.Future<void> setExamplesOnlyMode(bool? value) => (super.noSuchMethod(
+  _i6.Future<void> setExamplesOnlyMode(bool? value) => (super.noSuchMethod(
         Invocation.method(
           #setExamplesOnlyMode,
           [value],
         ),
-        returnValue: _i5.Future<void>.value(),
-        returnValueForMissingStub: _i5.Future<void>.value(),
-      ) as _i5.Future<void>);
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
 }

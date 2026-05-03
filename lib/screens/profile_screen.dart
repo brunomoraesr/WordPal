@@ -1,18 +1,142 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'dart:math';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  void _showEditNameDialog(BuildContext context, AppProvider provider) {
+    final controller = TextEditingController(text: provider.userProfile.name);
+    
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Edit name',
+            style: TextStyle(
+                fontFamily: 'Fraunces',
+                fontSize: 20,
+                fontWeight: FontWeight.w400)),
+        content: TextField(
+          controller: controller,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            hintText: 'Enter your name',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel',
+                style: TextStyle(color: AppColors.inkMuted)),
+          ),
+          TextButton(
+            onPressed: () {
+              provider.updateName(controller.text);
+              Navigator.pop(context);
+            },
+            child: const Text('Save',
+                style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAccentDialog(BuildContext context, AppProvider provider) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Pronunciation', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ['American English', 'British English', 'Australian English']
+              .map((accent) => RadioListTile(
+                    title: Text(accent, style: const TextStyle(color: AppColors.ink)),
+                    value: accent,
+                    groupValue: provider.userProfile.pronunciationAccent,
+                    onChanged: (value) {
+                      if (value != null) provider.updatePronunciationAccent(value);
+                      Navigator.pop(context);
+                    },
+                    activeColor: AppColors.primary,
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showTranslationDialog(BuildContext context, AppProvider provider) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Translation', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ['Português (BR)', 'Español', 'Français']
+              .map((lang) => RadioListTile(
+                    title: Text(lang, style: const TextStyle(color: AppColors.ink)),
+                    value: lang,
+                    groupValue: provider.userProfile.translationLanguage,
+                    onChanged: (value) {
+                      if (value != null) provider.updateTranslationLanguage(value);
+                      Navigator.pop(context);
+                    },
+                    activeColor: AppColors.primary,
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showHelpDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Help & Support', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        content: const Text('For support, please email support@wordpal.app or visit our website.',
+            style: TextStyle(color: AppColors.inkSoft)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
+    final profile = provider.userProfile;
     final total = provider.savedWords.length;
     final mastered = provider.savedWords.where((w) => w.mastered).length;
-    final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    final activity = [0.6, 0.9, 0.4, 0.8, 1.0, 0.7, 0.3];
+    final joinedStr = DateFormat('MMMM yyyy').format(profile.joinedAt);
+    
+    // Calculate activity
+    final days = ['M', 'T', 'W', 'Th', 'F', 'S', 'Su'];
+    final practiceMinutes = profile.weeklyPracticeMinutes;
+    final maxMinutes = practiceMinutes.values.isEmpty ? 0 : practiceMinutes.values.reduce(max);
+    
+    final activityFractions = days.map((day) {
+      final mins = practiceMinutes[day] ?? 0;
+      return maxMinutes == 0 ? 0.0 : (mins / maxMinutes);
+    }).toList();
+    
+    final totalMinutesThisWeek = practiceMinutes.values.fold(0, (sum, mins) => sum + mins);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -35,26 +159,35 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   alignment: Alignment.center,
-                  child: const Text('M',
-                      style: TextStyle(
+                  child: Text(profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?',
+                      style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           color: Colors.white)),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Maria Almeida',
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.ink,
-                              letterSpacing: -0.4)),
-                      SizedBox(height: 3),
-                      Text('Intermediate · Level B2 · Joined March 2026',
-                          style: TextStyle(
+                      Row(
+                        children: [
+                          Text(profile.name,
+                              style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.ink,
+                                  letterSpacing: -0.4)),
+                          const SizedBox(width: 6),
+                          GestureDetector(
+                            onTap: () => _showEditNameDialog(context, provider),
+                            child: const Icon(Icons.edit_rounded, size: 16, color: AppColors.inkMuted),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Text('Intermediate · Level B2 · Joined $joinedStr',
+                          style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.inkSoft)),
                     ],
@@ -119,14 +252,14 @@ class ProfileScreen extends StatelessWidget {
                                   color: AppColors.inkMuted)),
                           const SizedBox(height: 4),
                           RichText(
-                            text: const TextSpan(
-                              style: TextStyle(
+                            text: TextSpan(
+                              style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.ink),
                               children: [
-                                TextSpan(text: '23 minutes '),
-                                TextSpan(
+                                TextSpan(text: '$totalMinutesThisWeek minutes '),
+                                const TextSpan(
                                   text: 'practiced',
                                   style: TextStyle(
                                       fontStyle: FontStyle.italic,
@@ -144,7 +277,7 @@ class ProfileScreen extends StatelessWidget {
                           color: AppColors.successSoft,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text('+18%',
+                        child: const Text('Active',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -158,7 +291,8 @@ class ProfileScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: List.generate(7, (i) {
-                        final active = activity[i] >= 0.7;
+                        final frac = activityFractions[i];
+                        final active = frac >= 0.7;
                         return Expanded(
                           child: Padding(
                             padding:
@@ -170,7 +304,7 @@ class ProfileScreen extends StatelessWidget {
                                   child: Align(
                                     alignment: Alignment.bottomCenter,
                                     child: FractionallySizedBox(
-                                      heightFactor: activity[i],
+                                      heightFactor: frac == 0.0 ? 0.05 : frac, // Min height of 5% for visibility
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: active
@@ -214,11 +348,11 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                const _Achievement(
+                _Achievement(
                     emoji: '⭐',
                     title: 'Week strong',
                     sub: '7 day streak',
-                    unlocked: true),
+                    unlocked: practiceMinutes.values.where((v) => v > 0).length >= 3),
                 const SizedBox(width: 8),
                 _Achievement(
                     emoji: '📖',
@@ -226,11 +360,11 @@ class ProfileScreen extends StatelessWidget {
                     sub: '50 words saved',
                     unlocked: total >= 50),
                 const SizedBox(width: 8),
-                const _Achievement(
+                _Achievement(
                     emoji: '🎓',
                     title: 'Scholar',
-                    sub: 'C2 word learned',
-                    unlocked: false),
+                    sub: 'Master 10 words',
+                    unlocked: mastered >= 10),
               ],
             ),
 
@@ -243,16 +377,36 @@ class ProfileScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Column(
+              child: Column(
                 children: [
-                  _SettingsRow('Daily reminder · 8:00 AM',
-                      Icons.notifications_outlined, 0, true),
-                  _SettingsRow('Pronunciation · British English',
-                      Icons.volume_up_outlined, 1, true),
-                  _SettingsRow('Translation · Português (BR)',
-                      Icons.translate_rounded, 1, true),
                   _SettingsRow(
-                      'Help & support', Icons.help_outline_rounded, 1, false),
+                    'Daily reminder · 8:00 AM',
+                    Icons.notifications_outlined,
+                    0,
+                    provider.userProfile.dailyReminder,
+                    () => provider.toggleDailyReminder(),
+                  ),
+                  _SettingsRow(
+                    'Pronunciation · ${provider.userProfile.pronunciationAccent}',
+                    Icons.volume_up_outlined,
+                    1,
+                    true,
+                    () => _showAccentDialog(context, provider),
+                  ),
+                  _SettingsRow(
+                    'Translation · ${provider.userProfile.translationLanguage}',
+                    Icons.translate_rounded,
+                    1,
+                    true,
+                    () => _showTranslationDialog(context, provider),
+                  ),
+                  _SettingsRow(
+                    'Help & support',
+                    Icons.help_outline_rounded,
+                    1,
+                    true,
+                    () => _showHelpDialog(context),
+                  ),
                 ],
               ),
             ),
@@ -364,9 +518,10 @@ class _SettingsRow extends StatelessWidget {
   final String label;
   final IconData icon;
   final int topBorder;
-  final bool showChevron;
+  final bool value;
+  final VoidCallback onTap;
 
-  const _SettingsRow(this.label, this.icon, this.topBorder, this.showChevron);
+  const _SettingsRow(this.label, this.icon, this.topBorder, this.value, this.onTap);
 
   @override
   Widget build(BuildContext context) {
@@ -377,13 +532,18 @@ class _SettingsRow extends StatelessWidget {
             : null,
       ),
       child: ListTile(
+        onTap: onTap,
         leading: Icon(icon, size: 20, color: AppColors.inkSoft),
         title: Text(label,
             style: const TextStyle(fontSize: 14, color: AppColors.ink)),
-        trailing: showChevron
-            ? const Icon(Icons.chevron_right_rounded,
-                size: 18, color: AppColors.inkMuted)
-            : null,
+        trailing: icon == Icons.notifications_outlined
+            ? Switch.adaptive(
+                value: value,
+                onChanged: (v) => onTap(),
+                activeColor: AppColors.primary,
+              )
+            : const Icon(Icons.chevron_right_rounded,
+                size: 18, color: AppColors.inkMuted),
         dense: true,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
