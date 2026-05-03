@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 import '../providers/app_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -419,7 +421,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-class _SearchField extends StatelessWidget {
+class _SearchField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool isLoading;
@@ -433,16 +435,78 @@ class _SearchField extends StatelessWidget {
   });
 
   @override
+  State<_SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<_SearchField> {
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+  bool _speechEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    _speechEnabled = await _speech.initialize(
+      onStatus: (status) {
+        if (status == 'done' || status == 'notListening') {
+          if (mounted) setState(() => _isListening = false);
+        }
+      },
+      onError: (errorNotification) {
+        if (mounted) setState(() => _isListening = false);
+      },
+    );
+    if (mounted) setState(() {});
+  }
+
+  void _toggleListening() async {
+    if (_isListening) {
+      await _speech.stop();
+      setState(() => _isListening = false);
+      return;
+    }
+
+    var status = await Permission.microphone.request();
+    if (status.isGranted) {
+      if (!_speechEnabled) {
+        await _initSpeech();
+      }
+      
+      if (_speechEnabled) {
+        setState(() => _isListening = true);
+        await _speech.listen(
+          onResult: (result) {
+            widget.controller.text = result.recognizedWords;
+            if (result.finalResult && result.recognizedWords.isNotEmpty) {
+              widget.onSubmit(result.recognizedWords);
+            }
+          },
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Microphone permission required for voice search.')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: TextField(
-            controller: controller,
-            focusNode: focusNode,
+            controller: widget.controller,
+            focusNode: widget.focusNode,
             textInputAction: TextInputAction.search,
             textCapitalization: TextCapitalization.none,
-            onSubmitted: onSubmit,
+            onSubmitted: widget.onSubmit,
             style: const TextStyle(fontSize: 15, color: AppColors.ink),
             decoration: InputDecoration(
               hintText: 'Type an English word…',
@@ -453,29 +517,39 @@ class _SearchField extends StatelessWidget {
               ),
               prefixIconConstraints:
                   const BoxConstraints(minWidth: 0, minHeight: 0),
-              suffixIcon: ValueListenableBuilder(
-                valueListenable: controller,
-                builder: (_, value, __) => value.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            size: 18, color: AppColors.inkMuted),
-                        onPressed: () => controller.clear(),
-                      )
-                    : const SizedBox.shrink(),
+              suffixIcon: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ValueListenableBuilder(
+                    valueListenable: widget.controller,
+                    builder: (_, value, __) => value.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close_rounded,
+                                size: 18, color: AppColors.inkMuted),
+                            onPressed: () => widget.controller.clear(),
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  IconButton(
+                    icon: Icon(_isListening ? Icons.mic : Icons.mic_none,
+                        size: 20, color: _isListening ? AppColors.error : AppColors.inkMuted),
+                    onPressed: _toggleListening,
+                  ),
+                ],
               ),
             ),
           ),
         ),
         const SizedBox(width: 10),
         ElevatedButton(
-          onPressed: isLoading ? null : () => onSubmit(controller.text),
+          onPressed: widget.isLoading ? null : () => widget.onSubmit(widget.controller.text),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(52, 52),
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
           ),
-          child: isLoading
+          child: widget.isLoading
               ? const SizedBox(
                   width: 20,
                   height: 20,
