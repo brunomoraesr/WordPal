@@ -7,6 +7,7 @@ class PreferencesService {
   static const _keyPosFilter = 'pos_filter';
   static const _keyExamplesOnly = 'examples_only_mode';
   static const _keyUserProfile = 'user_profile';
+  static const _keyOnboardingDone = 'onboarding_done';
 
   static const int maxHistory = 20;
 
@@ -66,5 +67,15 @@ class PreferencesService {
   Future<void> setExamplesOnlyMode(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyExamplesOnly, value);
+  }
+
+  Future<bool> isOnboardingDone() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyOnboardingDone) ?? false;
+  }
+
+  Future<void> setOnboardingDone() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyOnboardingDone, true);
   }
 }

@@ -8,6 +8,8 @@ import 'screens/notebook_screen.dart';
 import 'screens/flashcards_screen.dart';
 import 'screens/practice_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -38,9 +40,19 @@ class WordPalApp extends StatelessWidget {
       title: 'WordPal',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      initialRoute: '/',
+      initialRoute: '/splash',
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case '/splash':
+            return MaterialPageRoute(
+              builder: (_) => const SplashScreen(),
+              settings: settings,
+            );
+          case '/onboarding':
+            return MaterialPageRoute(
+              builder: (_) => const OnboardingScreen(),
+              settings: settings,
+            );
           case '/':
             return MaterialPageRoute(
               builder: (_) => const MainShell(),
