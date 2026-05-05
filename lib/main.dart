@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'screens/search_screen.dart';
@@ -8,6 +9,8 @@ import 'screens/notebook_screen.dart';
 import 'screens/flashcards_screen.dart';
 import 'screens/practice_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/splash_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -34,13 +37,41 @@ class WordPalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = context.select<AppProvider, double>((p) => p.userProfile.fontSize);
+
     return MaterialApp(
       title: 'WordPal',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      initialRoute: '/',
+      locale: const Locale('pt', 'BR'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+        Locale('en'),
+      ],
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(fontSize),
+        ),
+        child: child!,
+      ),
+      initialRoute: '/splash',
       onGenerateRoute: (settings) {
         switch (settings.name) {
+          case '/splash':
+            return MaterialPageRoute(
+              builder: (_) => const SplashScreen(),
+              settings: settings,
+            );
+          case '/onboarding':
+            return MaterialPageRoute(
+              builder: (_) => const OnboardingScreen(),
+              settings: settings,
+            );
           case '/':
             return MaterialPageRoute(
               builder: (_) => const MainShell(),
@@ -138,25 +169,25 @@ class MainShellState extends State<MainShell> {
               children: [
                 _NavItem(
                   icon: Icons.search_rounded,
-                  label: 'Search',
+                  label: 'Buscar',
                   isActive: _currentIndex == 0,
                   onTap: () => setTab(0),
                 ),
                 _NavItem(
                   icon: Icons.menu_book_rounded,
-                  label: 'Notebook',
+                  label: 'Caderno',
                   isActive: _currentIndex == 1,
                   onTap: () => setTab(1),
                 ),
                 _NavItem(
                   icon: Icons.quiz_rounded,
-                  label: 'Practice',
+                  label: 'Prática',
                   isActive: _currentIndex == 2,
                   onTap: () => setTab(2),
                 ),
                 _NavItem(
                   icon: Icons.person_rounded,
-                  label: 'Profile',
+                  label: 'Perfil',
                   isActive: _currentIndex == 3,
                   onTap: () => setTab(3),
                 ),

@@ -41,7 +41,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('YOUR COLLECTION',
+                  const Text('SUA COLEÇÃO',
                       style: TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
@@ -50,7 +50,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
                           color: AppColors.inkMuted)),
                   const SizedBox(height: 4),
                   const Text(
-                    'Notebook',
+                    'Caderno',
                     style: TextStyle(
                       fontFamily: 'Fraunces',
                       fontSize: 30,
@@ -70,12 +70,12 @@ class _NotebookScreenState extends State<NotebookScreen> {
                           color: AppColors.primary),
                       const SizedBox(width: 10),
                       _StatChip(
-                          label: 'Learning',
+                          label: 'Aprendendo',
                           value: '${learning.length}',
                           color: AppColors.accent),
                       const SizedBox(width: 10),
                       _StatChip(
-                          label: 'Mastered',
+                          label: 'Dominadas',
                           value: '${mastered.length}',
                           color: AppColors.success),
                     ],
@@ -116,12 +116,12 @@ class _NotebookScreenState extends State<NotebookScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('Review with flashcards',
+                                  const Text('Revisar com flashcards',
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
                                           color: Colors.white)),
-                                  Text('${all.length} cards · ~${(all.length * 0.5).ceil()} min',
+                                  Text('${all.length} cartões · ~${(all.length * 0.5).ceil()} min',
                                       style: const TextStyle(
                                           fontSize: 11,
                                           color: Colors.white70)),
@@ -141,21 +141,21 @@ class _NotebookScreenState extends State<NotebookScreen> {
                   Row(
                     children: [
                       _FilterChip(
-                        label: 'Learning',
+                        label: 'Aprendendo',
                         selected: _statusFilter == 'learning',
                         onTap: () =>
                             setState(() => _statusFilter = 'learning'),
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: 'Mastered',
+                        label: 'Dominadas',
                         selected: _statusFilter == 'mastered',
                         onTap: () =>
                             setState(() => _statusFilter = 'mastered'),
                       ),
                       const SizedBox(width: 8),
                       _FilterChip(
-                        label: 'All',
+                        label: 'Todas',
                         selected: _statusFilter == 'all',
                         onTap: () => setState(() => _statusFilter = 'all'),
                       ),
@@ -209,19 +209,19 @@ class _NotebookScreenState extends State<NotebookScreen> {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.bgRaised,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Remove word?',
+        title: const Text('Remover palavra?',
             style: TextStyle(
                 fontFamily: 'Fraunces',
                 fontSize: 20,
                 fontWeight: FontWeight.w400)),
         content: Text(
-          'Remove "${word.word}" from your notebook?',
+          'Remover "${word.word}" do seu caderno?',
           style: const TextStyle(color: AppColors.inkSoft),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
+            child: const Text('Cancelar',
                 style: TextStyle(color: AppColors.inkMuted)),
           ),
           TextButton(
@@ -229,7 +229,7 @@ class _NotebookScreenState extends State<NotebookScreen> {
               provider.deleteWord(word);
               Navigator.pop(context);
             },
-            child: const Text('Remove',
+            child: const Text('Remover',
                 style: TextStyle(color: AppColors.error)),
           ),
         ],
@@ -389,7 +389,7 @@ class _WordCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Text(
-                      word.mastered ? 'Mastered' : 'Learning',
+                      word.mastered ? 'Dominada' : 'Aprendendo',
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -503,10 +503,10 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               statusFilter == 'mastered'
-                  ? 'No mastered words yet'
+                  ? 'Nenhuma palavra dominada ainda'
                   : statusFilter == 'learning'
-                      ? 'No learning words'
-                  : 'Your notebook is empty',
+                      ? 'Nenhuma palavra aprendendo'
+                  : 'Seu caderno está vazio',
               style: const TextStyle(
                 fontFamily: 'Fraunces',
                 fontSize: 20,
@@ -518,10 +518,10 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               statusFilter == 'mastered'
-                  ? 'Keep learning! Check words as mastered\nfrom the word detail screen.'
+                  ? 'Continue aprendendo! Marque as palavras como dominadas\nna tela de detalhes.'
                   : statusFilter == 'learning'
-                      ? 'Search for words and save them here\nto start your learning list.'
-                  : 'Search for words and save them here\nto build your vocabulary.',
+                      ? 'Busque palavras e salve-as aqui\npara iniciar sua lista de aprendizado.'
+                  : 'Busque palavras e salve-as aqui\npara construir seu vocabulário.',
               style: const TextStyle(
                 fontSize: 13,
                 color: AppColors.inkMuted,

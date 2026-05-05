@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/saved_word.dart';
 import '../models/word_entry.dart';
 import '../models/user_profile.dart';
@@ -88,18 +88,45 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updatePronunciationAccent(String accent) async {
-    if (_userProfile.pronunciationAccent == accent) return;
-    _userProfile = _userProfile.copyWith(pronunciationAccent: accent);
+  Future<void> updateReminderTime(TimeOfDay time) async {
+    final formatted =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    if (_userProfile.reminderTime == formatted) return;
+    _userProfile = _userProfile.copyWith(dailyReminder: true, reminderTime: formatted);
     await _prefsService.saveUserProfile(_userProfile);
     notifyListeners();
   }
 
-  Future<void> updateTranslationLanguage(String language) async {
-    if (_userProfile.translationLanguage == language) return;
-    _userProfile = _userProfile.copyWith(translationLanguage: language);
+  Future<void> updateNativeLanguage(String language) async {
+    if (_userProfile.nativeLanguage == language) return;
+    _userProfile = _userProfile.copyWith(nativeLanguage: language);
     await _prefsService.saveUserProfile(_userProfile);
     notifyListeners();
+  }
+
+  Future<void> updateLearningGoal(String goal) async {
+    if (_userProfile.learningGoal == goal) return;
+    _userProfile = _userProfile.copyWith(learningGoal: goal);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> updateEnglishLevel(String level) async {
+    if (_userProfile.englishLevel == level) return;
+    _userProfile = _userProfile.copyWith(englishLevel: level);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> updateFontSize(double scale) async {
+    if (_userProfile.fontSize == scale) return;
+    _userProfile = _userProfile.copyWith(fontSize: scale);
+    await _prefsService.saveUserProfile(_userProfile);
+    notifyListeners();
+  }
+
+  Future<void> resetOnboarding() async {
+    await _prefsService.resetOnboarding();
   }
 
   Future<void> search(String word) async {

@@ -3,16 +3,22 @@ class UserProfile {
   final DateTime joinedAt;
   final Map<String, int> weeklyPracticeMinutes;
   final bool dailyReminder;
-  final String pronunciationAccent;
-  final String translationLanguage;
+  final String reminderTime; // "HH:mm" 24h format
+  final String nativeLanguage;
+  final String learningGoal;
+  final String englishLevel;
+  final double fontSize; // text scale factor: 0.85, 1.0, 1.15, 1.3
 
   UserProfile({
     required this.name,
     required this.joinedAt,
     required this.weeklyPracticeMinutes,
     this.dailyReminder = true,
-    this.pronunciationAccent = 'British English',
-    this.translationLanguage = 'Português (BR)',
+    this.reminderTime = '08:00',
+    this.nativeLanguage = 'Português (BR)',
+    this.learningGoal = 'Vocabulário geral',
+    this.englishLevel = 'Não definido',
+    this.fontSize = 1.0,
   });
 
   UserProfile copyWith({
@@ -20,16 +26,22 @@ class UserProfile {
     DateTime? joinedAt,
     Map<String, int>? weeklyPracticeMinutes,
     bool? dailyReminder,
-    String? pronunciationAccent,
-    String? translationLanguage,
+    String? reminderTime,
+    String? nativeLanguage,
+    String? learningGoal,
+    String? englishLevel,
+    double? fontSize,
   }) {
     return UserProfile(
       name: name ?? this.name,
       joinedAt: joinedAt ?? this.joinedAt,
       weeklyPracticeMinutes: weeklyPracticeMinutes ?? this.weeklyPracticeMinutes,
       dailyReminder: dailyReminder ?? this.dailyReminder,
-      pronunciationAccent: pronunciationAccent ?? this.pronunciationAccent,
-      translationLanguage: translationLanguage ?? this.translationLanguage,
+      reminderTime: reminderTime ?? this.reminderTime,
+      nativeLanguage: nativeLanguage ?? this.nativeLanguage,
+      learningGoal: learningGoal ?? this.learningGoal,
+      englishLevel: englishLevel ?? this.englishLevel,
+      fontSize: fontSize ?? this.fontSize,
     );
   }
 
@@ -39,14 +51,17 @@ class UserProfile {
       'joinedAt': joinedAt.toIso8601String(),
       'weeklyPracticeMinutes': weeklyPracticeMinutes,
       'dailyReminder': dailyReminder,
-      'pronunciationAccent': pronunciationAccent,
-      'translationLanguage': translationLanguage,
+      'reminderTime': reminderTime,
+      'nativeLanguage': nativeLanguage,
+      'learningGoal': learningGoal,
+      'englishLevel': englishLevel,
+      'fontSize': fontSize,
     };
   }
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
-      name: map['name'] as String? ?? 'Student',
+      name: map['name'] as String? ?? 'Estudante',
       joinedAt: map['joinedAt'] != null
           ? DateTime.parse(map['joinedAt'] as String)
           : DateTime.now(),
@@ -54,16 +69,20 @@ class UserProfile {
           ? Map<String, int>.from(map['weeklyPracticeMinutes'] as Map)
           : {},
       dailyReminder: map['dailyReminder'] as bool? ?? true,
-      pronunciationAccent:
-          map['pronunciationAccent'] as String? ?? 'British English',
-      translationLanguage:
-          map['translationLanguage'] as String? ?? 'Português (BR)',
+      reminderTime: map['reminderTime'] as String? ?? '08:00',
+      nativeLanguage:
+          map['nativeLanguage'] as String? ?? 'Português (BR)',
+      learningGoal:
+          map['learningGoal'] as String? ?? 'Vocabulário geral',
+      englishLevel:
+          map['englishLevel'] as String? ?? 'Não definido',
+      fontSize: (map['fontSize'] as num?)?.toDouble() ?? 1.0,
     );
   }
 
   factory UserProfile.defaultProfile() {
     return UserProfile(
-      name: 'Student',
+      name: 'Estudante',
       joinedAt: DateTime.now(),
       weeklyPracticeMinutes: {
         'M': 0,

@@ -10,13 +10,13 @@ class ProfileScreen extends StatelessWidget {
 
   void _showEditNameDialog(BuildContext context, AppProvider provider) {
     final controller = TextEditingController(text: provider.userProfile.name);
-    
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.bgRaised,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Edit name',
+        title: const Text('Editar nome',
             style: TextStyle(
                 fontFamily: 'Fraunces',
                 fontSize: 20,
@@ -25,13 +25,13 @@ class ProfileScreen extends StatelessWidget {
           controller: controller,
           textCapitalization: TextCapitalization.words,
           decoration: const InputDecoration(
-            hintText: 'Enter your name',
+            hintText: 'Digite seu nome',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
+            child: const Text('Cancelar',
                 style: TextStyle(color: AppColors.inkMuted)),
           ),
           TextButton(
@@ -39,7 +39,7 @@ class ProfileScreen extends StatelessWidget {
               provider.updateName(controller.text);
               Navigator.pop(context);
             },
-            child: const Text('Save',
+            child: const Text('Salvar',
                 style: TextStyle(color: AppColors.primary)),
           ),
         ],
@@ -47,54 +47,86 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showAccentDialog(BuildContext context, AppProvider provider) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.bgRaised,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Pronunciation', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ['American English', 'British English', 'Australian English']
-              .map((accent) => RadioListTile(
-                    title: Text(accent, style: const TextStyle(color: AppColors.ink)),
-                    value: accent,
-                    groupValue: provider.userProfile.pronunciationAccent,
-                    onChanged: (value) {
-                      if (value != null) provider.updatePronunciationAccent(value);
-                      Navigator.pop(context);
-                    },
-                    activeColor: AppColors.primary,
-                  ))
-              .toList(),
-        ),
-      ),
-    );
+  String _formatReminderTime(String hhmm) {
+    final parts = hhmm.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    final period = hour < 12 ? 'AM' : 'PM';
+    final h = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+    return '$h:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  void _showTranslationDialog(BuildContext context, AppProvider provider) {
+  Future<void> _pickReminderTime(BuildContext context, AppProvider provider) async {
+    final parts = provider.userProfile.reminderTime.split(':');
+    final initial = TimeOfDay(
+      hour: int.parse(parts[0]),
+      minute: int.parse(parts[1]),
+    );
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+        child: child!,
+      ),
+    );
+    if (picked != null && context.mounted) {
+      provider.updateReminderTime(picked);
+    }
+  }
+
+  String _fontSizeLabel(double scale) {
+    if (scale <= 0.85) return 'Pequena';
+    if (scale <= 1.0) return 'Normal';
+    return 'Grande';
+  }
+
+  void _showFontSizeDialog(BuildContext context, AppProvider provider) {
+    final options = [
+      (0.85, 'Pequena'),
+      (1.0, 'Normal'),
+      (1.15, 'Grande'),
+    ];
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.bgRaised,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Translation', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        title: const Text('Tamanho da fonte',
+            style: TextStyle(
+                fontFamily: 'Fraunces',
+                fontSize: 20,
+                fontWeight: FontWeight.w400)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: ['Português (BR)', 'Español', 'Français']
-              .map((lang) => RadioListTile(
-                    title: Text(lang, style: const TextStyle(color: AppColors.ink)),
-                    value: lang,
-                    groupValue: provider.userProfile.translationLanguage,
-                    onChanged: (value) {
-                      if (value != null) provider.updateTranslationLanguage(value);
-                      Navigator.pop(context);
-                    },
-                    activeColor: AppColors.primary,
-                  ))
-              .toList(),
+          children: options.map((opt) {
+            final selected = (provider.userProfile.fontSize - opt.$1).abs() < 0.01;
+            return ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              title: Text(opt.$2,
+                  style: TextStyle(
+                      fontSize: 14 * opt.$1,
+                      color: selected ? AppColors.primary : AppColors.ink,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w400)),
+              trailing: selected
+                  ? const Icon(Icons.check_rounded,
+                      size: 18, color: AppColors.primary)
+                  : null,
+              onTap: () {
+                provider.updateFontSize(opt.$1);
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar',
+                style: TextStyle(color: AppColors.inkMuted)),
+          ),
+        ],
       ),
     );
   }
@@ -105,13 +137,49 @@ class ProfileScreen extends StatelessWidget {
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.bgRaised,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Help & Support', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
-        content: const Text('For support, please email support@wordpal.app or visit our website.',
+        title: const Text('Ajuda e suporte', style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        content: const Text('Para suporte, envie um e-mail para support@wordpal.app ou acesse nosso site.',
             style: TextStyle(color: AppColors.inkSoft)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close', style: TextStyle(color: AppColors.primary)),
+            child: const Text('Fechar', style: TextStyle(color: AppColors.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetOnboardingDialog(BuildContext context, AppProvider provider) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Refazer configuração',
+            style: TextStyle(fontFamily: 'Fraunces', fontSize: 20)),
+        content: const Text(
+            'O assistente de configuração será exibido na próxima vez que você abrir o app.',
+            style: TextStyle(color: AppColors.inkSoft)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar', style: TextStyle(color: AppColors.inkMuted)),
+          ),
+          TextButton(
+            onPressed: () async {
+              await provider.resetOnboarding();
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Configuração será exibida na próxima abertura'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
+            child: const Text('Redefinir', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -186,7 +254,7 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 3),
-                      Text('Intermediate · Level B2 · Joined $joinedStr',
+                      Text('${profile.englishLevel} · Entrou em $joinedStr',
                           style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.inkSoft)),
@@ -204,21 +272,21 @@ class ProfileScreen extends StatelessWidget {
                 _BigStat(
                     icon: Icons.local_fire_department_rounded,
                     value: '${provider.history.length}',
-                    label: 'Searches',
+                    label: 'Buscas',
                     bgColor: AppColors.accentSoft,
                     fgColor: AppColors.accent),
                 const SizedBox(width: 10),
                 _BigStat(
                     icon: Icons.menu_book_rounded,
                     value: '$total',
-                    label: 'Words saved',
+                    label: 'Palavras salvas',
                     bgColor: AppColors.primarySoft,
                     fgColor: AppColors.primary),
                 const SizedBox(width: 10),
                 _BigStat(
                     icon: Icons.star_rounded,
                     value: '$mastered',
-                    label: 'Mastered',
+                    label: 'Dominadas',
                     bgColor: AppColors.successSoft,
                     fgColor: AppColors.success),
               ],
@@ -243,7 +311,7 @@ class ProfileScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('THIS WEEK',
+                          const Text('ESTA SEMANA',
                               style: TextStyle(
                                   fontFamily: 'monospace',
                                   fontSize: 11,
@@ -258,9 +326,9 @@ class ProfileScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.ink),
                               children: [
-                                TextSpan(text: '$totalMinutesThisWeek minutes '),
+                                TextSpan(text: '$totalMinutesThisWeek minutos '),
                                 const TextSpan(
-                                  text: 'practiced',
+                                  text: 'praticados',
                                   style: TextStyle(
                                       fontStyle: FontStyle.italic,
                                       color: AppColors.primary),
@@ -277,7 +345,7 @@ class ProfileScreen extends StatelessWidget {
                           color: AppColors.successSoft,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text('Active',
+                        child: const Text('Ativo',
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
@@ -338,7 +406,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Achievements
-            const Text('RECENT ACHIEVEMENTS',
+            const Text('CONQUISTAS RECENTES',
                 style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 11,
@@ -350,20 +418,20 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 _Achievement(
                     emoji: '⭐',
-                    title: 'Week strong',
-                    sub: '7 day streak',
+                    title: 'Foco total',
+                    sub: 'Ofensiva 7 dias',
                     unlocked: practiceMinutes.values.where((v) => v > 0).length >= 3),
                 const SizedBox(width: 8),
                 _Achievement(
                     emoji: '📖',
-                    title: 'Wordsmith',
-                    sub: '50 words saved',
+                    title: 'Vocabulário',
+                    sub: '50 pal. salvas',
                     unlocked: total >= 50),
                 const SizedBox(width: 8),
                 _Achievement(
                     emoji: '🎓',
-                    title: 'Scholar',
-                    sub: 'Master 10 words',
+                    title: 'Mestre',
+                    sub: 'Dominou 10',
                     unlocked: mastered >= 10),
               ],
             ),
@@ -380,32 +448,29 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _SettingsRow(
-                    'Daily reminder · 8:00 AM',
+                    'Lembrete diário · ${_formatReminderTime(provider.userProfile.reminderTime)}',
                     Icons.notifications_outlined,
                     0,
-                    provider.userProfile.dailyReminder,
-                    () => provider.toggleDailyReminder(),
+                    () => _pickReminderTime(context, provider),
                   ),
                   _SettingsRow(
-                    'Pronunciation · ${provider.userProfile.pronunciationAccent}',
-                    Icons.volume_up_outlined,
+                    'Tamanho da fonte · ${_fontSizeLabel(provider.userProfile.fontSize)}',
+                    Icons.text_fields_rounded,
                     1,
-                    true,
-                    () => _showAccentDialog(context, provider),
+                    () => _showFontSizeDialog(context, provider),
                   ),
                   _SettingsRow(
-                    'Translation · ${provider.userProfile.translationLanguage}',
-                    Icons.translate_rounded,
-                    1,
-                    true,
-                    () => _showTranslationDialog(context, provider),
-                  ),
-                  _SettingsRow(
-                    'Help & support',
+                    'Ajuda e suporte',
                     Icons.help_outline_rounded,
                     1,
-                    true,
                     () => _showHelpDialog(context),
+                  ),
+                  _SettingsRow(
+                    'Refazer configuração',
+                    Icons.refresh_rounded,
+                    1,
+                    () => _showResetOnboardingDialog(context, provider),
+                    danger: true,
                   ),
                 ],
               ),
@@ -518,13 +583,22 @@ class _SettingsRow extends StatelessWidget {
   final String label;
   final IconData icon;
   final int topBorder;
-  final bool value;
   final VoidCallback onTap;
+  final bool danger;
 
-  const _SettingsRow(this.label, this.icon, this.topBorder, this.value, this.onTap);
+  const _SettingsRow(
+    this.label,
+    this.icon,
+    this.topBorder,
+    this.onTap, {
+    this.danger = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final fgColor = danger ? AppColors.error : AppColors.inkSoft;
+    final textColor = danger ? AppColors.error : AppColors.ink;
+
     return Container(
       decoration: BoxDecoration(
         border: topBorder == 1
@@ -533,17 +607,11 @@ class _SettingsRow extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(icon, size: 20, color: AppColors.inkSoft),
+        leading: Icon(icon, size: 20, color: fgColor),
         title: Text(label,
-            style: const TextStyle(fontSize: 14, color: AppColors.ink)),
-        trailing: icon == Icons.notifications_outlined
-            ? Switch.adaptive(
-                value: value,
-                onChanged: (v) => onTap(),
-                activeColor: AppColors.primary,
-              )
-            : const Icon(Icons.chevron_right_rounded,
-                size: 18, color: AppColors.inkMuted),
+            style: TextStyle(fontSize: 14, color: textColor)),
+        trailing: Icon(Icons.chevron_right_rounded,
+            size: 18, color: danger ? AppColors.error : AppColors.inkMuted),
         dense: true,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 2),

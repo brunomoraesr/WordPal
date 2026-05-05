@@ -93,7 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   size: 14, color: AppColors.accent),
                               const SizedBox(width: 4),
                               Text(
-                                '${provider.history.length} searched',
+                                '${provider.history.length} buscadas',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -109,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     const SizedBox(height: 20),
 
                     // Greeting
-                    const Text('Good morning!',
+                    const Text('Bom dia!',
                         style: TextStyle(
                             fontSize: 13, color: AppColors.inkSoft)),
                     const SizedBox(height: 4),
@@ -124,15 +124,15 @@ class _SearchScreenState extends State<SearchScreen> {
                           height: 1.1,
                         ),
                         children: [
-                          TextSpan(text: 'What word are you\n'),
+                          TextSpan(text: 'Qual palavra você está\n'),
                           TextSpan(
-                            text: 'looking up',
+                            text: 'buscando',
                             style: TextStyle(
                               fontStyle: FontStyle.italic,
                               color: AppColors.primary,
                             ),
                           ),
-                          TextSpan(text: ' today?'),
+                          TextSpan(text: ' hoje?'),
                         ],
                       ),
                     ),
@@ -199,7 +199,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text('MOST RECENT SEARCH',
+                                  const Text('BUSCA MAIS RECENTE',
                                       style: TextStyle(
                                           fontFamily: 'monospace',
                                           fontSize: 10,
@@ -240,7 +240,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('SAVED WORDS',
+                            const Text('PALAVRAS SALVAS',
                                 style: TextStyle(
                                     fontFamily: 'monospace',
                                     fontSize: 10,
@@ -250,7 +250,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             GestureDetector(
                               onTap: () =>
                                   Navigator.pushNamed(context, '/notebook'),
-                              child: const Text('See all',
+                              child: const Text('Ver todas',
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -346,7 +346,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('RECENT',
+                        const Text('RECENTES',
                             style: TextStyle(
                                 fontFamily: 'monospace',
                                 fontSize: 10,
@@ -355,7 +355,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 color: AppColors.inkMuted)),
                         GestureDetector(
                           onTap: () => provider.clearHistory(),
-                          child: const Text('Clear',
+                          child: const Text('Limpar',
                               style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -490,7 +490,7 @@ class _SearchFieldState extends State<_SearchField> {
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission required for voice search.')),
+          const SnackBar(content: Text('Permissão de microfone necessária para busca por voz.')),
         );
       }
     }
@@ -509,7 +509,7 @@ class _SearchFieldState extends State<_SearchField> {
             onSubmitted: widget.onSubmit,
             style: const TextStyle(fontSize: 15, color: AppColors.ink),
             decoration: InputDecoration(
-              hintText: 'Type an English word…',
+              hintText: 'Digite uma palavra em inglês…',
               prefixIcon: const Padding(
                 padding: EdgeInsets.only(left: 14, right: 8),
                 child: Icon(Icons.search_rounded,

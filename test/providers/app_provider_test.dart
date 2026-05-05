@@ -112,15 +112,15 @@ void main() {
     verify(mockPrefsService.saveUserProfile(provider.userProfile)).called(1);
   });
 
-  test('updatePronunciationAccent() updates settings', () async {
-    await provider.updatePronunciationAccent('American English');
-    expect(provider.userProfile.pronunciationAccent, 'American English');
+  test('updateLearningGoal() updates settings', () async {
+    await provider.updateLearningGoal('Business English');
+    expect(provider.userProfile.learningGoal, 'Business English');
     verify(mockPrefsService.saveUserProfile(provider.userProfile)).called(1);
   });
 
-  test('updateTranslationLanguage() updates settings', () async {
-    await provider.updateTranslationLanguage('Español');
-    expect(provider.userProfile.translationLanguage, 'Español');
+  test('updateNativeLanguage() updates settings', () async {
+    await provider.updateNativeLanguage('Español');
+    expect(provider.userProfile.nativeLanguage, 'Español');
     verify(mockPrefsService.saveUserProfile(provider.userProfile)).called(1);
   });
 }
