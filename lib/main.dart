@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'screens/search_screen.dart';
@@ -36,10 +37,28 @@ class WordPalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = context.select<AppProvider, double>((p) => p.userProfile.fontSize);
+
     return MaterialApp(
       title: 'WordPal',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      locale: const Locale('pt', 'BR'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+        Locale('en'),
+      ],
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.linear(fontSize),
+        ),
+        child: child!,
+      ),
       initialRoute: '/splash',
       onGenerateRoute: (settings) {
         switch (settings.name) {
@@ -150,25 +169,25 @@ class MainShellState extends State<MainShell> {
               children: [
                 _NavItem(
                   icon: Icons.search_rounded,
-                  label: 'Search',
+                  label: 'Buscar',
                   isActive: _currentIndex == 0,
                   onTap: () => setTab(0),
                 ),
                 _NavItem(
                   icon: Icons.menu_book_rounded,
-                  label: 'Notebook',
+                  label: 'Caderno',
                   isActive: _currentIndex == 1,
                   onTap: () => setTab(1),
                 ),
                 _NavItem(
                   icon: Icons.quiz_rounded,
-                  label: 'Practice',
+                  label: 'Prática',
                   isActive: _currentIndex == 2,
                   onTap: () => setTab(2),
                 ),
                 _NavItem(
                   icon: Icons.person_rounded,
-                  label: 'Profile',
+                  label: 'Perfil',
                   isActive: _currentIndex == 3,
                   onTap: () => setTab(3),
                 ),

@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: Center(
+      body: SizedBox.expand(
         child: Lottie.asset(
           'assets/images/languages.json',
           controller: _controller,
@@ -55,8 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
               ..duration = composition.duration
               ..forward();
           },
-          width: MediaQuery.of(context).size.width * 0.85,
-          fit: BoxFit.contain,
+          fit: BoxFit.cover,
           frameRate: FrameRate.max,
         ),
       ),

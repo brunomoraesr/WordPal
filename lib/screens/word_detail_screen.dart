@@ -18,6 +18,14 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
   int _tabIndex = 0; // 0=definition, 1=examples, 2=related
 
   @override
+  void initState() {
+    super.initState();
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _isPlaying = false);
+    });
+  }
+
+  @override
   void dispose() {
     _player.dispose();
     super.dispose();
@@ -29,9 +37,6 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
     try {
       await _player.stop();
       await _player.play(UrlSource(url));
-      _player.onPlayerComplete.listen((_) {
-        if (mounted) setState(() => _isPlaying = false);
-      });
     } catch (_) {
       if (mounted) setState(() => _isPlaying = false);
     }
@@ -68,7 +73,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Spacer(),
-                  const Text('Definition',
+                  const Text('Definição',
                       style: TextStyle(
                           fontFamily: 'monospace',
                           fontSize: 10,
@@ -174,7 +179,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  _isPlaying ? 'Playing…' : 'Listen',
+                                  _isPlaying ? 'Tocando…' : 'Ouvir',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -220,12 +225,12 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Examples only mode',
+                              Text('Modo apenas exemplos',
                                   style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.ink)),
-                              Text('Hide definitions for self-assessment',
+                              Text('Ocultar definições para se testar',
                                   style: TextStyle(
                                       fontSize: 11,
                                       color: AppColors.inkMuted)),
@@ -245,7 +250,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
 
                   // POS radio filter
                   if (word.partsOfSpeech.length > 1) ...[
-                    const Text('FILTER BY',
+                    const Text('FILTRAR POR',
                         style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 10,
@@ -263,7 +268,7 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
 
                   // Tabs
                   _TabBar(
-                    tabs: const ['Definition', 'Examples', 'Related'],
+                    tabs: const ['Definição', 'Exemplos', 'Relacionados'],
                     selected: _tabIndex,
                     onTap: (i) => setState(() => _tabIndex = i),
                   ),
@@ -313,8 +318,8 @@ class _WordDetailScreenState extends State<WordDetailScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: Text(
                       provider.isCurrentWordSaved
-                          ? 'Saved to notebook'
-                          : 'Save to notebook',
+                          ? 'Salvo no caderno'
+                          : 'Salvar no caderno',
                       key: ValueKey<bool>(provider.isCurrentWordSaved),
                     ),
                   ),
@@ -356,6 +361,7 @@ class _PosFilterRow extends StatelessWidget {
       runSpacing: 8,
       children: options.map((pos) {
         final isSelected = selected == pos;
+        final displayPos = pos == 'all' ? 'todos' : pos;
         return Material(
           color: isSelected ? AppColors.primary : AppColors.bgRaised,
           borderRadius: BorderRadius.circular(999),
@@ -387,7 +393,7 @@ class _PosFilterRow extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    pos,
+                    displayPos,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -464,7 +470,7 @@ class _DefinitionTab extends StatelessWidget {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Text('No definitions found for this filter.',
+          child: Text('Nenhuma definição encontrada para este filtro.',
               style: TextStyle(color: AppColors.inkMuted)),
         ),
       );
@@ -529,7 +535,7 @@ class _DefinitionTab extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
-                                'Definition hidden — test yourself!',
+                                'Definição oculta — teste a si mesmo!',
                                 style: TextStyle(
                                     fontSize: 13,
                                     color: AppColors.primary,
@@ -586,7 +592,7 @@ class _ExamplesTab extends StatelessWidget {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(32),
-          child: Text('No examples available for this word.',
+          child: Text('Nenhum exemplo disponível para esta palavra.',
               style: TextStyle(color: AppColors.inkMuted)),
         ),
       );
@@ -632,7 +638,7 @@ class _RelatedTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (synonyms.isNotEmpty) ...[
-          const Text('SYNONYMS',
+          const Text('SINÔNIMOS',
               style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 10,
@@ -648,7 +654,7 @@ class _RelatedTab extends StatelessWidget {
           const SizedBox(height: 20),
         ],
         if (antonyms.isNotEmpty) ...[
-          const Text('ANTONYMS',
+          const Text('ANTÔNIMOS',
               style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 10,
@@ -666,7 +672,7 @@ class _RelatedTab extends StatelessWidget {
           const Center(
             child: Padding(
               padding: EdgeInsets.all(32),
-              child: Text('No synonyms or antonyms available.',
+              child: Text('Sem sinônimos ou antônimos disponíveis.',
                   style: TextStyle(color: AppColors.inkMuted)),
             ),
           ),

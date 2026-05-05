@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wordpal/services/preferences_service.dart';
@@ -16,7 +15,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       
       final profile = await service.getUserProfile();
-      expect(profile.name, 'Student');
+      expect(profile.name, 'Estudante');
     });
 
     test('saveUserProfile and getUserProfile work correctly', () async {
@@ -40,7 +39,7 @@ void main() {
       });
       
       final profile = await service.getUserProfile();
-      expect(profile.name, 'Student');
+      expect(profile.name, 'Estudante');
     });
   });
 }

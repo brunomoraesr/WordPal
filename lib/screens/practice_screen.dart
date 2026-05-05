@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../providers/app_provider.dart';
 import '../models/saved_word.dart';
+import '../services/translation_service.dart';
 import '../main.dart';
 import '../theme/app_theme.dart';
 
@@ -18,30 +20,113 @@ class _PracticeScreenState extends State<PracticeScreen> {
   String? _picked;
   int _score = 0;
   bool _finished = false;
-  late List<_Question> _questions;
+  List<_Question> _questions = [];
+  bool _loading = false;
   bool _built = false;
+  String? _loadError;
+  bool _isPlaying = false;
 
-  void _buildQuestions(List<SavedWord> words) {
+  final _translationService = TranslationService();
+  final _player = AudioPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+    _player.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _isPlaying = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  Future<void> _playAudio(String? url) async {
+    if (url == null || url.isEmpty) return;
+    setState(() => _isPlaying = true);
+    try {
+      await _player.stop();
+      await _player.play(UrlSource(url));
+    } catch (_) {
+      if (mounted) setState(() => _isPlaying = false);
+    }
+  }
+
+  Future<void> _buildQuestions(List<SavedWord> words) async {
     if (_built || words.length < 2) return;
     _built = true;
+
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
+
     final rng = Random();
     final shuffled = [...words]..shuffle(rng);
     final pool = shuffled.take(min(10, shuffled.length)).toList();
 
-    _questions = pool.map((word) {
-      final others = words.where((w) => w.word != word.word).toList()
+    // Fetch translations in parallel for all words in pool + possible distractors
+    // We need translations for everything so distractors also have PT text.
+    final allNeeded = {...pool, ...words}.toList();
+    final translationMap = <String, String>{};
+
+    await Future.wait(allNeeded.map((w) async {
+      final pt = await _translationService.translate(w.word);
+      if (pt != null) translationMap[w.word] = pt;
+    }));
+
+    // Build questions — only for words that got a translation
+    final translatable = pool.where((w) => translationMap.containsKey(w.word)).toList();
+
+    if (translatable.length < 2) {
+      // Fallback: use English definition as the "translation" for all words
+      for (final w in pool) {
+        if (!translationMap.containsKey(w.word) && w.definition.isNotEmpty) {
+          translationMap[w.word] = w.definition;
+        }
+      }
+    }
+
+    final finalPool = pool.where((w) => translationMap.containsKey(w.word)).toList();
+
+    if (finalPool.length < 2) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _loadError = 'Não foi possível carregar as traduções.\nVerifique sua conexão e tente novamente.';
+        });
+      }
+      return;
+    }
+
+    final questions = finalPool.map((word) {
+      final correctTranslation = translationMap[word.word]!;
+      final otherWords = finalPool
+          .where((w) => w.word != word.word && translationMap.containsKey(w.word))
+          .toList()
         ..shuffle(rng);
-      final distractors = others.take(3).map((w) => w.word).toList();
-      final options = [...distractors, word.word]..shuffle(rng);
+      final distractorTranslations =
+          otherWords.take(3).map((w) => translationMap[w.word]!).toList();
+      final options = [...distractorTranslations, correctTranslation]..shuffle(rng);
+
       return _Question(
         word: word.word,
         phonetic: word.phonetic,
-        correctAnswer: word.word,
-        prompt: 'Which word matches this definition?',
+        audioUrl: word.audioUrl,
+        correctAnswer: correctTranslation,
         options: options,
-        hint: word.definition,
       );
-    }).toList();
+    }).toList()
+      ..shuffle(rng);
+
+    if (mounted) {
+      setState(() {
+        _questions = questions;
+        _loading = false;
+      });
+    }
   }
 
   void _pick(String option) {
@@ -71,6 +156,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _picked = null;
       _finished = false;
       _built = false;
+      _questions = [];
+      _loadError = null;
     });
   }
 
@@ -90,7 +177,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 const Icon(Icons.quiz_outlined,
                     size: 56, color: AppColors.inkMuted),
                 const SizedBox(height: 20),
-                const Text('Save at least 2 words',
+                const Text('Salve pelo menos 2 palavras',
                     style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -98,17 +185,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     textAlign: TextAlign.center),
                 const SizedBox(height: 10),
                 const Text(
-                    'Add more words to your notebook\nto start practicing.',
+                    'Adicione mais palavras ao seu caderno\npara começar a praticar.',
                     style: TextStyle(fontSize: 15, color: AppColors.inkSoft),
                     textAlign: TextAlign.center),
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () {
-                    final shell = context
-                        .findAncestorStateOfType<MainShellState>();
+                    final shell =
+                        context.findAncestorStateOfType<MainShellState>();
                     shell?.setTab(0);
                   },
-                  child: const Text('Go to Search'),
+                  child: const Text('Ir para Busca'),
                 ),
               ],
             ),
@@ -117,7 +204,72 @@ class _PracticeScreenState extends State<PracticeScreen> {
       );
     }
 
-    _buildQuestions(words);
+    // Kick off async build after first frame
+    if (!_built && !_loading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _buildQuestions(words.toList());
+      });
+    }
+
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: AppColors.bg,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _Header(score: _score),
+              const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppColors.primary),
+                      SizedBox(height: 20),
+                      Text('Buscando traduções…',
+                          style: TextStyle(
+                              fontSize: 14, color: AppColors.inkSoft)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_loadError != null) {
+      return Scaffold(
+        backgroundColor: AppColors.bg,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.wifi_off_rounded,
+                    size: 48, color: AppColors.inkMuted),
+                const SizedBox(height: 20),
+                Text(_loadError!,
+                    style: const TextStyle(
+                        fontSize: 15, color: AppColors.inkSoft),
+                    textAlign: TextAlign.center),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: _restart,
+                  child: const Text('Tentar novamente'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (_questions.isEmpty) {
+      // Still initializing
+      return const Scaffold(backgroundColor: AppColors.bg);
+    }
 
     if (_finished) {
       return _ResultScreen(
@@ -140,7 +292,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('DAILY QUIZ',
+                      Text('QUIZ DIÁRIO',
                           style: TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 11,
@@ -148,7 +300,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                               letterSpacing: 1.2,
                               color: AppColors.inkMuted)),
                       SizedBox(height: 2),
-                      Text('Practice',
+                      Text('Praticar',
                           style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -183,7 +335,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
             const SizedBox(height: 14),
 
-            // Progress
+            // Progress bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -192,16 +344,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Question ${_qIdx + 1} of ${_questions.length}',
+                      Text('Questão ${_qIdx + 1} de ${_questions.length}',
                           style: const TextStyle(
                               fontFamily: 'monospace',
                               fontSize: 11,
                               color: AppColors.inkSoft)),
-                      const Text('3 min remaining',
-                          style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 11,
-                              color: AppColors.inkMuted)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -225,7 +372,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // Question card
+                    // Word card
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(22),
@@ -236,8 +383,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       ),
                       child: Column(
                         children: [
-                          Text(q.prompt.toUpperCase(),
-                              style: const TextStyle(
+                          const Text('QUAL É A TRADUÇÃO?',
+                              style: TextStyle(
                                   fontFamily: 'monospace',
                                   fontSize: 11,
                                   letterSpacing: 1.5,
@@ -253,38 +400,44 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                   height: 1)),
                           if (q.phonetic.isNotEmpty) ...[
                             const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: AppColors.primarySoft,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.volume_up_rounded,
-                                      size: 12, color: AppColors.primary),
-                                  const SizedBox(width: 4),
-                                  Text(q.phonetic,
-                                      style: const TextStyle(
-                                          fontFamily: 'monospace',
-                                          fontSize: 12,
-                                          color: AppColors.primary)),
-                                ],
+                            GestureDetector(
+                              onTap: q.audioUrl != null
+                                  ? () => _playAudio(q.audioUrl)
+                                  : null,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: _isPlaying
+                                      ? AppColors.primary
+                                      : AppColors.primarySoft,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      _isPlaying
+                                          ? Icons.pause_rounded
+                                          : Icons.volume_up_rounded,
+                                      size: 12,
+                                      color: _isPlaying
+                                          ? Colors.white
+                                          : AppColors.primary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(q.phonetic,
+                                        style: TextStyle(
+                                            fontFamily: 'monospace',
+                                            fontSize: 12,
+                                            color: _isPlaying
+                                                ? Colors.white
+                                                : AppColors.primary)),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
-                          if (q.hint.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            Text(q.hint,
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.inkSoft,
-                                    height: 1.4),
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis),
                           ],
                         ],
                       ),
@@ -301,8 +454,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         itemBuilder: (_, i) {
                           final opt = q.options[i];
                           final label = String.fromCharCode(65 + i);
-                          final isCorrect =
-                              opt == q.correctAnswer;
+                          final isCorrect = opt == q.correctAnswer;
                           final isPicked = _picked == opt;
                           final showResult = _picked != null;
 
@@ -329,8 +481,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                               decoration: BoxDecoration(
                                 color: bg,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                    color: border, width: 1.5),
+                                border:
+                                    Border.all(color: border, width: 1.5),
                               ),
                               child: Row(
                                 children: [
@@ -373,12 +525,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                         .inkMuted)),
                                   ),
                                   const SizedBox(width: 12),
-                                  Text(opt,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          fontStyle: FontStyle.italic,
-                                          color: fg)),
+                                  Expanded(
+                                    child: Text(opt,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: fg)),
+                                  ),
                                 ],
                               ),
                             ),
@@ -397,21 +550,75 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 }
 
+class _Header extends StatelessWidget {
+  final int score;
+  const _Header({required this.score});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      child: Row(
+        children: [
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('QUIZ DIÁRIO',
+                  style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.2,
+                      color: AppColors.inkMuted)),
+              SizedBox(height: 2),
+              Text('Praticar',
+                  style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                      letterSpacing: -0.5)),
+            ],
+          ),
+          const Spacer(),
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.successSoft,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_rounded,
+                    size: 14, color: AppColors.success),
+                const SizedBox(width: 4),
+                Text('$score',
+                    style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.success)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _Question {
   final String word;
   final String phonetic;
+  final String? audioUrl;
   final String correctAnswer;
-  final String prompt;
   final List<String> options;
-  final String hint;
 
   _Question({
     required this.word,
     required this.phonetic,
+    this.audioUrl,
     required this.correctAnswer,
-    required this.prompt,
     required this.options,
-    required this.hint,
   });
 }
 
@@ -421,9 +628,7 @@ class _ResultScreen extends StatelessWidget {
   final VoidCallback onRestart;
 
   const _ResultScreen(
-      {required this.score,
-      required this.total,
-      required this.onRestart});
+      {required this.score, required this.total, required this.onRestart});
 
   @override
   Widget build(BuildContext context) {
@@ -451,7 +656,7 @@ class _ResultScreen extends StatelessWidget {
                         color: AppColors.success)),
               ),
               const SizedBox(height: 24),
-              Text('$score of $total correct',
+              Text('$score de $total corretas',
                   style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -459,17 +664,17 @@ class _ResultScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                   pct >= 80
-                      ? 'Great job! Keep it up!'
-                      : 'Keep practicing — you\'ll get there!',
-                  style: const TextStyle(
-                      fontSize: 15, color: AppColors.inkSoft),
+                      ? 'Ótimo trabalho! Continue assim!'
+                      : 'Continue praticando — você vai chegar lá!',
+                  style:
+                      const TextStyle(fontSize: 15, color: AppColors.inkSoft),
                   textAlign: TextAlign.center),
               const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: onRestart,
-                  child: const Text('Try again',
+                  child: const Text('Tentar novamente',
                       style: TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
@@ -481,4 +686,3 @@ class _ResultScreen extends StatelessWidget {
     );
   }
 }
-

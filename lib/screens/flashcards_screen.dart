@@ -76,13 +76,13 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
               children: [
                 Icon(Icons.style_outlined, size: 56, color: AppColors.inkMuted),
                 SizedBox(height: 16),
-                Text('No cards yet',
+                Text('Nenhum cartão ainda',
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: AppColors.ink)),
                 SizedBox(height: 8),
-                Text('Save words in your notebook\nto create flashcards.',
+                Text('Salve palavras no seu caderno\npara criar flashcards.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14, color: AppColors.inkSoft)),
               ],
@@ -191,7 +191,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
                       icon: const Text('✕',
                           style: TextStyle(
                               color: AppColors.accent, fontSize: 16)),
-                      label: const Text('Review again',
+                      label: const Text('Revisar de novo',
                           style: TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 14)),
                       style: OutlinedButton.styleFrom(
@@ -208,7 +208,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen>
                     child: ElevatedButton.icon(
                       onPressed: _next,
                       icon: const Icon(Icons.check_rounded, size: 18),
-                      label: const Text('Got it',
+                      label: const Text('Entendi',
                           style: TextStyle(
                               fontWeight: FontWeight.w600, fontSize: 14)),
                       style: ElevatedButton.styleFrom(
@@ -302,7 +302,7 @@ class _CardFront extends StatelessWidget {
           const Spacer(),
           const Center(
             child: Text(
-              'TAP CARD TO REVEAL',
+              'TOQUE PARA REVELAR',
               style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 11,
@@ -340,7 +340,7 @@ class _CardBack extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('DEFINITION',
+          const Text('DEFINIÇÃO',
               style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 11,
