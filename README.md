@@ -103,7 +103,7 @@ lib/
 ## API utilizada
 
 **Free Dictionary API** — [dictionaryapi.dev](https://dictionaryapi.dev/)
-- Gratuita, sem necessidade de cadastro ou chave de API
+- Gratuita, sem necessidade de cadastro ou chave de API.
 - Retorna definições, fonética, áudio, sinônimos, antônimos e exemplos
 
 ---
