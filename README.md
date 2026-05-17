@@ -43,7 +43,7 @@ A **WordPal** nasceu de uma necessidade real de escolas de idiomas: os alunos us
 ### 🧠 Quiz (Practice)
 - Perguntas de múltipla escolha geradas automaticamente das palavras salvas
 - Feedback visual imediato (verde = acerto, laranja = erro)
-- Placar em tempo real
+- Placar em tempo real.
 - Tela de resultado com porcentagem de acerto
 
 ### 👤 Perfil
